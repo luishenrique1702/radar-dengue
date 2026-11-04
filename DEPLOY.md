@@ -2,18 +2,12 @@
 
 São três etapas, cerca de 20 minutos no total. Tudo é gratuito.
 
-## 1. Colocar o código no GitHub
+## 1. GitHub
 
-1. Crie uma conta em [github.com](https://github.com), se ainda não tiver.
-2. Clique em **New repository**, dê o nome `radar-dengue`, deixe **Public** e **não** marque a
-   opção de criar README (o projeto já tem um).
-3. Envie o código. Escolha uma das formas:
-   - **Pelo terminal**, dentro da pasta do projeto:
-     ```bash
-     git remote add origin https://github.com/SEU-USUARIO/radar-dengue.git
-     git push -u origin main
-     ```
-   - **Pelo VS Code:** abra a pasta, vá em *Source Control* e clique em *Publish Branch*.
+Já feito: o código está no repositório privado `luishenrique1702/Radar-Dengue`.
+
+Para mostrar o projeto a recrutadores, deixe-o público quando estiver pronto: no repositório,
+**Settings → General → Danger Zone → Change repository visibility → Public**.
 
 ## 2. Ligar a atualização automática
 
@@ -30,7 +24,7 @@ Se algo falhar, ou o modelo piorar, o GitHub envia um e-mail.
 1. Entre em [share.streamlit.io](https://share.streamlit.io) com a sua conta do GitHub.
 2. Clique em **Create app → Deploy a public app from GitHub**.
 3. Preencha:
-   - **Repository:** `SEU-USUARIO/radar-dengue`
+   - **Repository:** `luishenrique1702/Radar-Dengue`
    - **Branch:** `main`
    - **Main file path:** `app/streamlit_app.py`
    - **App URL:** algo como `radar-dengue-sp`

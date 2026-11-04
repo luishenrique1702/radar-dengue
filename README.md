@@ -127,8 +127,8 @@ para o histórico do Git não crescer toda semana.
 Requer Python 3.11+.
 
 ```bash
-git clone https://github.com/SEU-USUARIO/radar-dengue.git
-cd radar-dengue
+git clone https://github.com/luishenrique1702/Radar-Dengue.git
+cd Radar-Dengue
 python -m venv .venv && source .venv/bin/activate   # Windows: .venv\Scripts\activate
 make install    # ou: pip install -e ".[dev,analise]"
 
