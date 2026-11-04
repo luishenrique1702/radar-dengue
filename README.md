@@ -2,7 +2,7 @@
 
 **Previsão semanal de casos de dengue para os 645 municípios do estado de São Paulo, de 1 a 4 semanas à frente, com mapa de risco, intervalos de previsão e monitoramento contínuo do modelo.**
 
-🔗 **Dashboard:** [radar-dengue.streamlit.app](https://radar-dengue-gsqumy4teckmjnzgugdd97.streamlit.app/)
+🔗 **Dashboard:** [Abrir o dashboard](https://radar-dengue-gsqumy4teckmjnzgugdd97.streamlit.app/)
 
 ![Mapa de risco](reports/figures/dashboard_mapa.png)
 
