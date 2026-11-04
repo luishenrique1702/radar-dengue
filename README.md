@@ -1,129 +1,76 @@
-# 🦟 Radar Dengue SP
+# Radar Dengue SP
 
-**Previsão semanal de casos de dengue para os 645 municípios do estado de São Paulo, de 1 a 4 semanas à frente, com mapa de risco, intervalos de previsão e monitoramento contínuo do modelo.**
+Previsão semanal de casos de dengue para os 645 municípios de São Paulo, de 1 a 4 semanas à frente, em produção e atualizada automaticamente.
 
-🔗 **Dashboard:** [Abrir o dashboard](https://radar-dengue-gsqumy4teckmjnzgugdd97.streamlit.app/)
+**[Dashboard](https://radar-dengue-gsqumy4teckmjnzgugdd97.streamlit.app/)** · **[Análises](notebooks)** · **[Consultas SQL](sql)** · **[API](src/radar_dengue/api.py)**
 
 ![Mapa de risco](reports/figures/dashboard_mapa.png)
 
----
+## Em resumo
 
-## Objetivo
+- **Problema:** secretarias de saúde precisam saber com semanas de antecedência onde a dengue vai aumentar, para reforçar o combate ao mosquito e preparar o atendimento.
+- **Solução:** um modelo LightGBM com função de perda de Poisson, treinado com 12 anos de dados do InfoDengue (Fiocruz/FGV), que prevê os casos de cada município com intervalos de incerteza calibrados.
+- **Resultado:** erra de **13% a 30% menos** que repetir a semana atual e, combinado com o alerta oficial do InfoDengue, detecta **89% das epidemias com 4 semanas de antecedência**, contra 74% do alerta sozinho.
 
-**Antecipar onde a dengue vai aumentar, para que a vigilância em saúde possa agir antes dos casos
-subirem.** O projeto responde a três perguntas:
+## Resultados
 
-| Pergunta | Resposta |
-|---|---|
-| 1. Dá para prever os casos de cada município com até 4 semanas de antecedência melhor do que repetindo a semana atual? | **Sim.** O erro cai 13% (1 semana) a 30% (4 semanas), com significância estatística. |
-| 2. O clima ajuda a prever, além do que a época do ano já explica? | **Muito pouco.** Controlando a sazonalidade, +1 °C se associa a só 4% a 7% mais casos, no curto prazo. |
-| 3. Onde e quando o modelo falha? | **No início das epidemias e nas cidades pequenas.** Ele reconhece bem o fim de uma epidemia, mas subestima a aceleração. |
-
-## O problema
-
-A dengue é a arbovirose de maior impacto no Brasil. Em 2024, o estado de São Paulo registrou
-cerca de **3,9 milhões de casos notificados**, a maior epidemia da série histórica. Secretarias de
-saúde precisam decidir **com semanas de antecedência** onde reforçar o combate ao mosquito, abrir
-salas de hidratação e remanejar equipes.
-
-**Pergunta de negócio:** *quantos casos cada município terá nas próximas 4 semanas, e quais estão
-caminhando para um nível de risco alto?*
-
-## Principais resultados
+Avaliação em 2024–2026, período que o modelo nunca viu no treino e que inclui a maior epidemia de dengue da história do estado.
 
 | | |
 |---|---|
-| **Desempenho** | O modelo erra **13% a 30% menos** que o baseline ingênuo (repetir a semana atual), com ganho crescente com o horizonte. |
-| **Significância** | A melhora é estatisticamente significativa na escala log em todos os horizontes (teste de Diebold-Mariano, p < 0,01). |
-| **Comparação** | Venceu cinco alternativas, incluindo a binomial negativa, referência estatística para contagens. Regressão linear e "repetir o ano anterior" perdem até do baseline. |
-| **Alerta oficial** | Complementa o alerta do InfoDengue (Fiocruz/FGV): juntos, detectam 89% das epidemias com 4 semanas de antecedência, contra 74% do alerta oficial sozinho. |
-| **Incerteza** | Intervalos de 80% cobrem 76% dos valores reais no teste. |
-| **Clima** | Controlando a época do ano, cada +1 °C se associa a só 4% a 7% mais casos, no curto prazo. A correlação forte vista nos dados brutos era quase toda sazonal. |
-| **Epidemia de 2024** | Foi recorde porque atingiu o Leste do estado (capital, Vale do Paraíba, litoral), historicamente pouco afetado: incidência quase 9 vezes maior que em 2023. |
+| **Precisão** | Erro de 11,6 casos por município-semana com 1 semana de antecedência e 25,8 com 4 semanas, contra 13,4 e 36,6 do baseline. Diferença estatisticamente significativa (teste de Diebold-Mariano). |
+| **Comparação** | Venceu cinco alternativas, incluindo a binomial negativa, referência estatística para contagens, que fica perto só com 3 e 4 semanas. |
+| **Alerta oficial** | O alerta do InfoDengue é melhor para dizer quem continua em epidemia; o modelo antecipa cerca de metade das novas epidemias. Os dois juntos detectam mais, ao custo de mais alarmes falsos. |
+| **Incerteza** | Intervalos de 50%, 80% e 95% com calibração conformal: o de 95% cobre 94,6% dos valores reais. |
+| **Clima** | Controlando a época do ano, cada +1 °C se associa a só 4% a 7% mais casos. A correlação forte vista nos dados brutos era sazonal. |
+| **Epidemia de 2024** | Foi recorde porque atingiu o leste do estado, que tinha pouca dengue: incidência quase 9 vezes maior que em 2023. |
+| **Ponto fraco** | Subestima o início das epidemias; reconhece bem o fim. |
 
-### Desempenho por horizonte (teste em 2024–2026, nunca visto no treino)
+## O que o projeto demonstra
 
-| Horizonte | Erro médio, modelo | Erro médio, baseline | Redução | Precisão do alerta* |
-|:--:|:--:|:--:|:--:|:--:|
-| 1 semana | 11,6 casos | 13,4 | **-13%** | 87% |
-| 2 semanas | 17,0 | 21,4 | **-21%** | 85% |
-| 3 semanas | 21,0 | 29,2 | **-28%** | 83% |
-| 4 semanas | 25,8 | 36,6 | **-30%** | 81% |
-
-\* Dos municípios-semana classificados como risco alto ou muito alto, quantos realmente atingiram
-esse nível. O modelo também detecta mais desses casos que o baseline (*recall* de 81% a 86%, contra
-77% a 85%): é mais certeiro sem ser mais conservador.
-
-## Análises
-
-Os três notebooks em [`notebooks/`](notebooks) contam a história completa, com código e interpretação:
-
-| Notebook | Conteúdo |
-|---|---|
-| [01 · Análise descritiva](notebooks/01_analise_descritiva.ipynb) | Qualidade dos dados, atraso de notificação, evolução 2015–2026, sazonalidade, porte e região, distribuição, clima |
-| [02 · Análise inferencial](notebooks/02_analise_inferencial.ipynb) | Regressão binomial negativa com efeitos fixos (clima × dengue) e teste de Diebold-Mariano (modelo × baseline) |
-| [03 · Modelagem e avaliação](notebooks/03_modelagem_e_avaliacao.ipynb) | Comparação de 6 métodos (incluindo binomial negativa), ajuste de hiperparâmetros, erros por porte, região e fase da epidemia, SHAP, regressão quantílica e comparação com o alerta oficial do InfoDengue |
+- **Modelagem de séries temporais:** validação temporal sem vazamento, comparação com baselines e modelos estatísticos, ajuste de hiperparâmetros, análise de erros.
+- **Estatística aplicada:** regressão binomial negativa com efeitos fixos, teste de Diebold-Mariano, regressão quantílica, calibração conformal, valores SHAP.
+- **Engenharia de dados:** coleta via API, validação, banco analítico em DuckDB com consultas SQL (funções de janela, CTEs).
+- **Produção:** atualização semanal pelo GitHub Actions, registro de versões do modelo, monitoramento do desempenho com alerta, API em FastAPI, dashboard em Streamlit, Docker, 37 testes automatizados.
 
 ## Como funciona
 
 ```
-InfoDengue API ──► coleta (645 municípios, 2015–hoje) ──► validação dos dados
-                                                                │
-                          engenharia de atributos (só passado, sem vazamento)
-                                                                │
-  LightGBM Poisson por horizonte (1–4 semanas): previsão central + quantis 10% e 90%
-                                                                │
-          previsão atual com correção do atraso de notificação (nowcast)
-                                                                │
-          ┌──────────────────────┬──────────────────────────────┴──────┐
-          ▼                      ▼                                     ▼
-   Dashboard Streamlit   registro de versões do modelo     log de previsões → monitoramento
-                                                                       │
-                    GitHub Actions: tudo isso automaticamente toda segunda-feira,
-                    com alerta por e-mail se o modelo ficar pior que o baseline
+API do InfoDengue ──► coleta e validação (645 municípios, 2015–hoje)
+                              │
+               atributos: casos recentes, tendência, Rt, clima, sazonalidade
+                              │
+        LightGBM Poisson por horizonte + regressão quantílica calibrada
+                              │
+     ┌────────────────────────┼────────────────────────┐
+  dashboard                  API                 banco DuckDB (SQL)
+                              │
+   GitHub Actions: retreina, prevê e monitora toda segunda-feira
 ```
 
-### Decisões de modelagem
+## Análises
 
-- **Validação temporal, não aleatória.** Treino até 2023, teste a partir de 2024. Embaralhar os dados
-  deixaria o modelo "espiar o futuro".
-- **Prever a variação, não o nível.** Árvores de decisão não extrapolam: prevendo o número de casos
-  diretamente, o modelo subestimou a epidemia de 2024 e perdeu do baseline. Prevendo a variação em
-  relação à semana atual, passou a acompanhar epidemias de qualquer tamanho.
-- **Escala logarítmica**, porque os casos vão de zero a dezenas de milhares e a distribuição é
-  extremamente assimétrica.
-- **Atraso de notificação.** Na semana mais recente desta base, só 28% dos casos estimados já
-  estavam notificados. As últimas semanas ficam fora da avaliação e, na previsão, usam o *nowcast*
-  do InfoDengue.
-- **Um modelo global para todos os municípios**: cidades pequenas, com poucos casos, aprendem com
-  o padrão das grandes.
-- **Função de perda de Poisson**, própria para contagens, com a semana atual como *offset*: errou de
-  2% a 6% menos que o mesmo modelo prevendo o logaritmo dos casos.
-- **Hiperparâmetros:** a busca com validação cruzada temporal mudou o erro em menos de 2%. O ganho
-  vem dos atributos e do desenho do alvo.
-
-## Produção
-
-| Peça | O que faz |
+| Notebook | Pergunta |
 |---|---|
-| `validate.py` | Para o pipeline se a API mudar de formato, vier incompleta ou com valores inválidos |
-| `model.py` | Treina, avalia e **registra cada versão** com suas métricas em `models/registro/versoes.csv` |
-| `predict.py` | Gera a previsão atual com **intervalo de 80%** e a salva no histórico de previsões |
-| `monitor.py` | Compara previsões passadas com o que aconteceu; falha (e o GitHub avisa por e-mail) se o modelo ficar pior que o baseline por 4 semanas |
-| `atualizar.yml` | GitHub Actions: coleta, treino, previsão e monitoramento toda segunda-feira |
-| `ci.yml` | Lint e 22 testes a cada mudança no código |
+| [01 · Descritiva](notebooks/01_analise_descritiva.ipynb) | Como a dengue se comporta no tempo, no espaço e com o clima? |
+| [02 · Inferencial](notebooks/02_analise_inferencial.ipynb) | O clima importa além da sazonalidade? O modelo é significativamente melhor? |
+| [03 · Modelagem](notebooks/03_modelagem_e_avaliacao.ipynb) | Qual método prevê melhor, onde ele erra e quão confiáveis são os intervalos? Como se compara ao alerta oficial? |
+| [04 · SQL](notebooks/04_consultas_sql.ipynb) | As mesmas perguntas respondidas em SQL, num banco analítico. |
 
-Modelos treinados e dados brutos não vão para o repositório: são regenerados a cada execução,
-para o histórico do Git não crescer toda semana.
+## Decisões técnicas
 
-## Dados
+- **Validação temporal:** treino até 2023, teste a partir de 2024. Embaralhar os dados deixaria o modelo ver o futuro.
+- **Prever a variação, não o nível:** árvores não extrapolam; prevendo o nível, o modelo subestimou a epidemia de 2024. Com a semana atual como *offset*, passou a acompanhar epidemias de qualquer tamanho.
+- **Perda de Poisson:** própria para contagens; reduziu o erro em 2% a 6% em relação a prever o logaritmo.
+- **Atraso de notificação:** na semana mais recente, só cerca de 28% dos casos já estão notificados. Essas semanas ficam fora da avaliação e, na previsão, usam o nowcast do InfoDengue.
+- **Um modelo para todos os municípios:** cidades pequenas, com poucos casos, aprendem com o padrão das grandes.
 
-| Fonte | Conteúdo |
-|---|---|
-| [InfoDengue](https://info.dengue.mat.br) (Fiocruz/FGV) | Casos notificados semanais, nowcast, Rt, temperatura e umidade por município |
-| [geodata-br](https://github.com/tbrugz/geodata-br) | Malha dos municípios de SP (IBGE) |
+## Limitações
 
-~398 mil registros (645 municípios × 617 semanas, jan/2015 a out/2026).
+- Avaliado em **um estado e uma grande epidemia**; o desempenho em outros contextos não foi testado.
+- **Casos notificados**, não confirmados, como na vigilância.
+- Intervalos ainda **estreitos nas cidades grandes**, cujas epidemias recentes foram mais extremas que o histórico.
+- Sem informação de **sorotipo e vacinação**. Os níveis de risco são ilustrativos.
 
 ## Rodando localmente
 
@@ -133,58 +80,28 @@ Requer Python 3.11+.
 git clone https://github.com/luishenrique1702/Radar-Dengue.git
 cd Radar-Dengue
 python -m venv .venv && source .venv/bin/activate   # Windows: .venv\Scripts\activate
-make install    # ou: pip install -e ".[dev,analise]"
-
-make pipeline   # coleta, treina, prevê e monitora (~8 min)
+make install    # dependências
+make pipeline   # coleta, treina, prevê, monitora e cria o banco SQL (~15 min)
 make app        # dashboard em http://localhost:8501
+make api        # API em http://localhost:8000/docs
 make testes
 ```
-
-Com Docker: `docker build -t radar-dengue . && docker run -p 8501:8501 radar-dengue`
 
 ## Estrutura
 
 ```
-├── app/streamlit_app.py      # dashboard (mapa, municípios, desempenho, monitoramento)
-├── notebooks/                # análises descritiva, inferencial e de modelagem
-├── src/radar_dengue/
-│   ├── collect.py            # coleta via API do InfoDengue
-│   ├── validate.py           # checagens de qualidade dos dados
-│   ├── features.py           # atributos e níveis de risco
-│   ├── geo.py                # região e porte dos municípios
-│   ├── model.py              # treino, avaliação e registro de versões
-│   ├── predict.py            # previsão atual com intervalos
-│   └── monitor.py            # desempenho em produção e alerta
-├── tests/                    # 22 testes
-├── data/                     # malha, dados processados e monitoramento
-├── models/                   # métricas e registro de versões
-└── .github/workflows/        # CI e atualização semanal
+├── app/                 dashboard (Streamlit)
+├── notebooks/           análises descritiva, inferencial, de modelagem e SQL
+├── sql/                 consultas analíticas
+├── src/radar_dengue/    coleta, validação, atributos, modelos, intervalos, previsão,
+│                        monitoramento, comparação, banco SQL e API
+├── tests/               37 testes
+└── .github/workflows/   testes a cada mudança e atualização semanal
 ```
 
-## Trabalhos relacionados
+## Dados
 
-Previsão de dengue no Brasil é uma área de pesquisa ativa. Este projeto se apoia nos dados e no
-nowcast do [InfoDengue](https://info.dengue.mat.br). O consórcio Infodengue-Mosqlimate organizou em
-2024 um [desafio de previsão](https://sciety.org/articles/activity/10.1101/2025.05.12.25327419)
-cujos modelos combinados foram usados pelo Ministério da Saúde. Pesquisadores da USP, UFABC e FGV
-[previram surtos por bairro no Rio de Janeiro](https://agencia.fapesp.br/modelo-de-aprendizado-de-maquina-pode-ser-utilizado-para-prever-surtos-de-dengue/39217/)
-com árvores de decisão explicáveis.
-
-## Limitações
-
-- **Casos notificados ≠ confirmados.** Seguimos a métrica da vigilância, que inclui casos prováveis.
-- **Cidades muito pequenas** têm incidência instável e erro relativo alto.
-- **O modelo subestima subidas fortes**, o erro mais caro para a vigilância.
-- **Intervalos estreitos demais nas cidades grandes** (cobertura de 63% contra 80% nominais).
-- Sem informação de **sorotipo** e **vacinação**. Níveis de risco ilustrativos, que não substituem
-  boletins oficiais.
-
-## Próximos passos
-
-- [ ] Casos nos municípios vizinhos como atributo, para antecipar subidas
-- [ ] Calibração dos intervalos (*conformal prediction*)
-- [ ] Limiar de alerta priorizando *recall*
-- [ ] Estudo causal: efeito da vacinação (iniciada em 2024), por diferenças em diferenças
+[InfoDengue](https://info.dengue.mat.br) (Fiocruz/FGV): casos semanais, nowcast, Rt, nível de alerta e clima por município, 2015–2026, cerca de 398 mil registros. Malha municipal do IBGE via [geodata-br](https://github.com/tbrugz/geodata-br). Trabalhos relacionados: o [desafio de previsão Infodengue-Mosqlimate](https://sciety.org/articles/activity/10.1101/2025.05.12.25327419) e o [modelo por bairros do Rio de Janeiro](https://agencia.fapesp.br/modelo-de-aprendizado-de-maquina-pode-ser-utilizado-para-prever-surtos-de-dengue/39217/) (USP/UFABC/FGV).
 
 ## Autor
 
