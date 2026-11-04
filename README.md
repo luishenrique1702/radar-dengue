@@ -2,7 +2,7 @@
 
 Previsão semanal de casos de dengue para os 645 municípios de São Paulo, de 1 a 4 semanas à frente, em produção e atualizada automaticamente.
 
-**[Dashboard](https://radar-dengue-gsqumy4teckmjnzgugdd97.streamlit.app/)** · **[Análises](notebooks)** · **[Consultas SQL](sql)** · **[API](src/radar_dengue/api.py)**
+**[Dashboard](https://radar-dengue-gsqumy4teckmjnzgugdd97.streamlit.app/)** · **[Análises](notebooks)** · **[Fundamentos teóricos](docs/teoria)** · **[Consultas SQL](sql)** · **[API](src/radar_dengue/api.py)**
 
 ![Mapa de risco](reports/figures/dashboard_mapa.png)
 
@@ -56,6 +56,8 @@ API do InfoDengue ──► coleta e validação (645 municípios, 2015–hoje)
 | [02 · Inferencial](notebooks/02_analise_inferencial.ipynb) | O clima importa além da sazonalidade? O modelo é significativamente melhor? |
 | [03 · Modelagem](notebooks/03_modelagem_e_avaliacao.ipynb) | Qual método prevê melhor, onde ele erra e quão confiáveis são os intervalos? Como se compara ao alerta oficial? |
 | [04 · SQL](notebooks/04_consultas_sql.ipynb) | As mesmas perguntas respondidas em SQL, num banco analítico. |
+
+A pasta [`docs/teoria`](docs/teoria) explica cada método usado (gradient boosting, perda de Poisson, binomial negativa, regressão quantílica e calibração conformal, SHAP, Diebold-Mariano), com a formulação, o motivo da escolha e as hipóteses que podem falhar neste projeto.
 
 ## Decisões técnicas
 
