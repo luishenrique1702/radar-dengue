@@ -188,4 +188,4 @@ com árvores de decisão explicáveis.
 
 ## Autor
 
-**Luis Henrique Toledo** · Doutorando no IME-USP · [LinkedIn](https://www.linkedin.com/in/luis-henrique-toledo-057b49161/) · [Lattes](https://buscatextual.cnpq.br/buscatextual/visualizacv.do?id=K1107936U3)
+**Luis Henrique Toledo** · Doutorando em Probabilidade e Estatística · IME-USP · [LinkedIn](https://www.linkedin.com/in/luis-henrique-toledo-057b49161/) · [Lattes](https://buscatextual.cnpq.br/buscatextual/visualizacv.do?id=K1107936U3)
