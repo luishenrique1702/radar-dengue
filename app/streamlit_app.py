@@ -67,6 +67,15 @@ def load():
 
 
 prev, hist, teste, geo, metricas, desempenho, versoes, comparacao, alerta = load()
+
+
+@st.cache_data
+def load_intervalos() -> dict:
+    arq = MODELS / "intervalos.json"
+    return json.loads(arq.read_text(encoding="utf-8")) if arq.exists() else {}
+
+
+intervalos = load_intervalos()
 semana_base = pd.Timestamp(prev["semana_base"].iloc[0])
 
 st.title("Radar Dengue · Estado de São Paulo")
@@ -132,13 +141,20 @@ with aba_cidade:
     hc.loc[recente, "casos"] = hc.loc[recente, ["casos", "casos_est"]].max(axis=1).round()
     pc = prev[prev["municipio"] == cidade].sort_values("horizonte")
 
+    nivel_int = st.radio("Intervalo de previsão", [50, 80, 95], index=1, horizontal=True,
+                         format_func=lambda n: f"{n}%", key="nivel_intervalo",
+                         help="Faixa onde o número real de casos deve cair com essa probabilidade.")
+    lo_col, hi_col = f"casos_min_{nivel_int}", f"casos_max_{nivel_int}"
+    if lo_col not in pc.columns:  # previsões antigas, só com o intervalo de 80%
+        lo_col, hi_col = "casos_min", "casos_max"
+
     fig = go.Figure()
-    if "casos_min" in pc.columns:
+    if lo_col in pc.columns:
         fig.add_scatter(x=pd.concat([pc["data_alvo"], pc["data_alvo"][::-1]]),
-                        y=pd.concat([pc["casos_max"], pc["casos_min"][::-1]]),
+                        y=pd.concat([pc[hi_col], pc[lo_col][::-1]]),
                         fill="toself", fillcolor="rgba(235,104,52,0.2)", line=dict(width=0),
                         mode="lines",
-                        name="Intervalo de 80%", hoverinfo="skip")
+                        name=f"Intervalo de {nivel_int}%", hoverinfo="skip")
     fig.add_scatter(x=hc["data_iniSE"], y=hc["casos"], name="Casos notificados",
                     line=dict(color=COR_REAL, width=2))
     ponte = pd.concat([hc.tail(1).rename(columns={"data_iniSE": "data_alvo",
@@ -150,16 +166,19 @@ with aba_cidade:
     fig.update_layout(height=420, hovermode="x unified", yaxis_title="Casos por semana",
                       legend=dict(orientation="h", y=1.08), margin=dict(l=0, r=0, t=30, b=0))
     st.plotly_chart(fig, width="stretch")
-    st.caption("As últimas semanas ainda recebem notificações atrasadas; por isso a previsão "
-               "parte da estimativa corrigida (nowcast) do InfoDengue. A faixa sombreada é o "
-               "intervalo de 80%: o valor real deve cair dentro dela em cerca de 8 de cada 10 "
-               "semanas (no teste, caiu em 76%).")
+    cob = intervalos.get("h4", {}).get(str(nivel_int), {}).get("cobertura_calibrada")
+    st.caption(
+        "As últimas semanas ainda recebem notificações atrasadas; por isso a previsão parte da "
+        f"estimativa corrigida (nowcast) do InfoDengue. A faixa sombreada é o intervalo de "
+        f"{nivel_int}%: o número real deve cair dentro dela em cerca de {nivel_int}% das semanas."
+        + (f" No teste (2024–2026), com 4 semanas de antecedência, caiu em {cob:.0%}." if cob else "")
+        + " Os intervalos são calibrados com dados de um período separado (calibração conformal)."
+    )
 
-    cols = ["data_alvo", "casos_previstos", "casos_min", "casos_max", "incidencia_100k",
-            "nivel_risco"]
+    cols = ["data_alvo", "casos_previstos", lo_col, hi_col, "incidencia_100k", "nivel_risco"]
     tabela(pc[[c for c in cols if c in pc.columns]]
            .rename(columns={"data_alvo": "Semana", "casos_previstos": "Casos previstos",
-                            "casos_min": "Mínimo provável", "casos_max": "Máximo provável",
+                            lo_col: "Mínimo provável", hi_col: "Máximo provável",
                             "incidencia_100k": "Por 100 mil hab.", "nivel_risco": "Nível"}),
            {"Semana": lambda v: f"{pd.Timestamp(v):%d/%m/%Y}", "Casos previstos": br,
             "Mínimo provável": br, "Máximo provável": br, "Por 100 mil hab.": lambda v: br(v, 1)})

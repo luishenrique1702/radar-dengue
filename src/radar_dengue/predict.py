@@ -6,12 +6,15 @@ Uso:
 
 from __future__ import annotations
 
+import json
+
 import joblib
 import numpy as np
 import pandas as pd
 
 from radar_dengue.config import DATA_PROCESSED, DATA_RAW, HORIZONS, MODELS
 from radar_dengue.features import FEATURES, build_features, risk_level
+from radar_dengue.intervals import NIVEIS, predict_bounds
 from radar_dengue.monitor import log_forecast
 from radar_dengue.validate import validate_raw
 
@@ -31,14 +34,18 @@ def correct_recent_weeks(raw: pd.DataFrame, weeks: int = 4) -> pd.DataFrame:
 
 
 def load_models() -> dict:
-    """Carrega, para cada horizonte, o modelo central e os quantílicos (se existirem)."""
+    """Carrega, para cada horizonte, o modelo central, os quantílicos e o ajuste conformal."""
+    ajustes = {}
+    arq_int = MODELS / "intervalos.json"
+    if arq_int.exists():
+        ajustes = json.loads(arq_int.read_text(encoding="utf-8"))
     models = {}
     for h in HORIZONS:
         m = {"central": joblib.load(MODELS / f"lgbm_h{h}.joblib")}
-        for q in ["q10", "q90"]:
-            arq = MODELS / f"lgbm_h{h}_{q}.joblib"
-            if arq.exists():
-                m[q] = joblib.load(arq)
+        arq = MODELS / f"quantis_h{h}.joblib"
+        if arq.exists():
+            m["quantis"] = joblib.load(arq)
+            m["ajustes"] = {int(n): v["ajuste_log"] for n, v in ajustes.get(f"h{h}", {}).items()}
         models[h] = m
     return models
 
@@ -46,7 +53,7 @@ def load_models() -> dict:
 def forecast(raw: pd.DataFrame, models: dict | None = None) -> pd.DataFrame:
     """Previsão para as próximas semanas a partir da semana mais recente dos dados.
 
-    `models` mapeia horizonte -> modelo, ou horizonte -> {"central", "q10", "q90"}.
+    `models` mapeia horizonte -> modelo, ou horizonte -> {"central", "quantis", "ajustes"}.
     """
     d = build_features(correct_recent_weeks(raw))
     last = d[d["data_iniSE"] == d["data_iniSE"].max()].copy()
@@ -74,12 +81,16 @@ def forecast(raw: pd.DataFrame, models: dict | None = None) -> pd.DataFrame:
             "nivel_risco": risk_level(inc),
             "pop": pop,
         })
-        if "q10" in m and "q90" in m:
-            lo = np.expm1(m["q10"].predict(last[FEATURES]) + atual).clip(0)
-            hi = np.expm1(m["q90"].predict(last[FEATURES]) + atual).clip(0)
-            # garante a ordem inferior <= central <= superior
-            bloco["casos_min"] = np.minimum(lo, casos).round(1)
-            bloco["casos_max"] = np.maximum(hi, casos).round(1)
+        if "quantis" in m:
+            for nivel in NIVEIS:
+                ajuste = m.get("ajustes", {}).get(nivel, 0.0)
+                lo, hi = predict_bounds(m["quantis"], last, nivel, ajuste)
+                # garante a ordem inferior <= central <= superior
+                bloco[f"casos_min_{nivel}"] = np.minimum(np.expm1(lo).clip(0), casos).round(1)
+                bloco[f"casos_max_{nivel}"] = np.maximum(np.expm1(hi).clip(0), casos).round(1)
+            # o intervalo de 80% é o padrão usado no monitoramento e no SQL
+            bloco["casos_min"] = bloco["casos_min_80"]
+            bloco["casos_max"] = bloco["casos_max_80"]
         out.append(bloco)
     return pd.concat(out, ignore_index=True)
 

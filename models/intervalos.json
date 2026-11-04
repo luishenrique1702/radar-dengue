@@ -1,0 +1,70 @@
+{
+  "h1": {
+    "50": {
+      "ajuste_log": 0.0,
+      "cobertura_sem_calibracao": 0.5161917239873348,
+      "cobertura_calibrada": 0.5161917239873348
+    },
+    "80": {
+      "ajuste_log": -1.4384906682647967e-07,
+      "cobertura_sem_calibracao": 0.7906758379735779,
+      "cobertura_calibrada": 0.7976635003821377
+    },
+    "95": {
+      "ajuste_log": 0.026028386563432114,
+      "cobertura_sem_calibracao": 0.9282781963096408,
+      "cobertura_calibrada": 0.9446446118571896
+    }
+  },
+  "h2": {
+    "50": {
+      "ajuste_log": -1.805749968626034e-08,
+      "cobertura_sem_calibracao": 0.5365550607510033,
+      "cobertura_calibrada": 0.5485073396008576
+    },
+    "80": {
+      "ajuste_log": 1.4384906682647967e-07,
+      "cobertura_sem_calibracao": 0.7784595084941448,
+      "cobertura_calibrada": 0.778481499807576
+    },
+    "95": {
+      "ajuste_log": 0.05573324502360471,
+      "cobertura_sem_calibracao": 0.921765902468525,
+      "cobertura_calibrada": 0.9442190334817747
+    }
+  },
+  "h3": {
+    "50": {
+      "ajuste_log": -3.199094216577573e-08,
+      "cobertura_sem_calibracao": 0.5351273532668882,
+      "cobertura_calibrada": 0.5463455149501661
+    },
+    "80": {
+      "ajuste_log": 0.002043961300521408,
+      "cobertura_sem_calibracao": 0.7697895902547065,
+      "cobertura_calibrada": 0.7787043189368771
+    },
+    "95": {
+      "ajuste_log": 0.08863783053832087,
+      "cobertura_sem_calibracao": 0.9135437430786268,
+      "cobertura_calibrada": 0.9433222591362126
+    }
+  },
+  "h4": {
+    "50": {
+      "ajuste_log": -4.6309055172690446e-08,
+      "cobertura_sem_calibracao": 0.5157102225196587,
+      "cobertura_calibrada": 0.5280910155596453
+    },
+    "80": {
+      "ajuste_log": 0.021501702238241237,
+      "cobertura_sem_calibracao": 0.7517372148792594,
+      "cobertura_calibrada": 0.7796664993586526
+    },
+    "95": {
+      "ajuste_log": 0.15551805828626358,
+      "cobertura_sem_calibracao": 0.9025932742178351,
+      "cobertura_calibrada": 0.9459818191958062
+    }
+  }
+}

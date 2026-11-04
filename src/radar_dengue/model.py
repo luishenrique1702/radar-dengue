@@ -16,9 +16,10 @@ import pandas as pd
 
 from radar_dengue.config import DATA_PROCESSED, DATA_RAW, HORIZONS, MODELS, TEST_START
 from radar_dengue.features import FEATURES, add_targets, build_features, risk_level
+from radar_dengue.intervals import evaluate as evaluate_intervals
+from radar_dengue.intervals import fit_quantiles
 from radar_dengue.validate import validate_raw
 
-QUANTILES = {"q10": 0.1, "q90": 0.9}
 REGISTRY = MODELS / "registro"
 
 PARAMS = dict(
@@ -87,7 +88,7 @@ def main() -> None:
     d = add_targets(build_features(raw), HORIZONS)
     MODELS.mkdir(exist_ok=True)
 
-    resultados, previsoes_teste, importancias = {}, [], {}
+    resultados, previsoes_teste, importancias, intervalos = {}, [], {}, {}
     for h in HORIZONS:
         train, test = split(d, h)
         model = fit_central(train, h)
@@ -113,14 +114,15 @@ def main() -> None:
         ganho = model.booster_.feature_importance("gain").tolist()
         importancias[f"h{h}"] = dict(zip(FEATURES, ganho, strict=True))
 
+        # Intervalos: avaliação honesta (ajuste até 2022, calibração em 2023, teste em 2024+)
+        intervalos[f"h{h}"] = evaluate_intervals(d, h, consolidated, TEST_START)
+        print("     cobertura calibrada: " + " | ".join(
+            f"{n}%: {v['cobertura_calibrada']:.1%}" for n, v in intervalos[f"h{h}"].items()))
+
         # Modelos finais para uso no dashboard: retreinados com todos os dados consolidados.
-        # Além da previsão central, dois modelos quantílicos formam o intervalo de 80%.
         full = consolidated(d, h)
-        alvo = full[f"y_h{h}"] - full["log_casos_lag0"]
         joblib.dump(fit_central(full, h), MODELS / f"lgbm_h{h}.joblib")
-        for nome, a in QUANTILES.items():
-            mq = lgb.LGBMRegressor(**PARAMS, objective="quantile", alpha=a)
-            joblib.dump(mq.fit(full[FEATURES], alvo), MODELS / f"lgbm_h{h}_{nome}.joblib")
+        joblib.dump(fit_quantiles(full, h), MODELS / f"quantis_h{h}.joblib")
 
     DATA_PROCESSED.mkdir(exist_ok=True)
     pd.concat(previsoes_teste).to_parquet(DATA_PROCESSED / "previsoes_teste.parquet", index=False)
@@ -128,6 +130,8 @@ def main() -> None:
         json.dump(resultados, f, indent=2, ensure_ascii=False)
     with open(MODELS / "importancias.json", "w", encoding="utf-8") as f:
         json.dump(importancias, f, indent=2)
+    with open(MODELS / "intervalos.json", "w", encoding="utf-8") as f:
+        json.dump(intervalos, f, indent=2)
     register(resultados, raw)
 
 
