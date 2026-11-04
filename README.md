@@ -8,6 +8,17 @@
 
 ---
 
+## Objetivo
+
+**Antecipar onde a dengue vai aumentar, para que a vigilância em saúde possa agir antes dos casos
+subirem.** O projeto responde a três perguntas:
+
+| Pergunta | Resposta |
+|---|---|
+| 1. Dá para prever os casos de cada município com até 4 semanas de antecedência melhor do que repetindo a semana atual? | **Sim.** O erro cai 9% (1 semana) a 28% (4 semanas), com significância estatística. |
+| 2. O clima ajuda a prever, além do que a época do ano já explica? | **Muito pouco.** Controlando a sazonalidade, +1 °C se associa a só 4% a 7% mais casos, no curto prazo. |
+| 3. Onde e quando o modelo falha? | **No início das epidemias e nas cidades pequenas.** Ele reconhece bem o fim de uma epidemia, mas subestima a aceleração. |
+
 ## O problema
 
 A dengue é a arbovirose de maior impacto no Brasil. Em 2024, o estado de São Paulo registrou
