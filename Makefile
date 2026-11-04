@@ -1,7 +1,7 @@
-.PHONY: install dados treino comparar previsao monitor sql pipeline app testes lint
+.PHONY: install dados treino comparar previsao monitor sql pipeline app api testes lint
 
 install:
-	pip install -e ".[dev,analise]"
+	pip install -e ".[dev,analise,api]"
 
 dados:
 	python -m radar_dengue.collect
@@ -25,6 +25,9 @@ pipeline: dados treino comparar previsao monitor sql
 
 app:
 	streamlit run app/streamlit_app.py
+
+api:
+	uvicorn radar_dengue.api:app --reload
 
 testes:
 	pytest -q
