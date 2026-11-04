@@ -1,0 +1,38 @@
+name: Atualização semanal
+
+# Toda segunda-feira: baixa dados novos, retreina, gera previsões e faz commit.
+# O Streamlit Cloud detecta o commit e atualiza o dashboard sozinho.
+on:
+  schedule:
+    - cron: "17 11 * * 1"   # segunda, 08:17 em Brasília
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  atualizar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -e .
+      - name: Coletar, validar, treinar e prever
+        run: |
+          python -m radar_dengue.collect
+          python -m radar_dengue.model
+          python -m radar_dengue.predict
+          python -m radar_dengue.monitor
+      - name: Commit dos dados atualizados
+        run: |
+          git config user.name "radar-dengue-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add data/processed data/monitoring models/*.json models/registro
+          git diff --cached --quiet || git commit -m "Atualização semanal dos dados e previsões"
+          git push
+      # Roda depois do commit: se o modelo estiver pior que o baseline há 4 semanas,
+      # este passo falha e o GitHub envia um e-mail de aviso.
+      - name: Checar desempenho do modelo
+        run: python -m radar_dengue.monitor --checar

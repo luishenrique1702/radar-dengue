@@ -1,0 +1,233 @@
+"""Dashboard do Radar Dengue.
+
+Rodar localmente:
+    streamlit run app/streamlit_app.py
+"""
+
+from __future__ import annotations
+
+import json
+import sys
+from pathlib import Path
+
+import pandas as pd
+import plotly.express as px
+import plotly.graph_objects as go
+import streamlit as st
+
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "src"))
+
+from radar_dengue.config import DATA_PROCESSED, GEOJSON, MODELS, ROOT  # noqa: E402
+
+# Paleta (rampa sequencial azul e cores categóricas fixas)
+RAMPA = ["#cde2fb", "#86b6ef", "#3987e5", "#256abf", "#104281", "#0d366b"]
+NIVEIS = {"Baixo": "#86b6ef", "Moderado": "#3987e5", "Alto": "#1c5cab", "Muito alto": "#0d366b"}
+COR_REAL, COR_PREV, COR_BASE = "#2a78d6", "#eb6834", "#898781"
+
+st.set_page_config(page_title="Radar Dengue SP", page_icon="🦟", layout="wide")
+
+
+@st.cache_data
+def load():
+    prev = pd.read_parquet(DATA_PROCESSED / "previsao_atual.parquet")
+    hist = pd.read_parquet(DATA_PROCESSED / "historico.parquet")
+    teste = pd.read_parquet(DATA_PROCESSED / "previsoes_teste.parquet")
+    with open(GEOJSON, encoding="utf-8") as f:
+        geo = json.load(f)
+    with open(MODELS / "metricas.json", encoding="utf-8") as f:
+        metricas = json.load(f)
+    arq_mon = ROOT / "data" / "monitoring" / "desempenho.parquet"
+    desempenho = pd.read_parquet(arq_mon) if arq_mon.exists() else pd.DataFrame()
+    arq_reg = MODELS / "registro" / "versoes.csv"
+    versoes = pd.read_csv(arq_reg) if arq_reg.exists() else pd.DataFrame()
+    return prev, hist, teste, geo, metricas, desempenho, versoes
+
+
+prev, hist, teste, geo, metricas, desempenho, versoes = load()
+semana_base = pd.Timestamp(prev["semana_base"].iloc[0])
+
+st.title("Radar Dengue · Estado de São Paulo")
+st.caption(
+    f"Previsão semanal de casos de dengue para os 645 municípios paulistas. "
+    f"Última semana com dados: {semana_base:%d/%m/%Y}. "
+    "Fonte: InfoDengue (casos notificados e clima)."
+)
+
+aba_mapa, aba_cidade, aba_modelo, aba_monit = st.tabs(
+    ["Mapa de risco", "Por município", "Desempenho do modelo", "Monitoramento"]
+)
+
+# ---------------------------------------------------------------- Mapa
+with aba_mapa:
+    h = st.select_slider("Previsão para daqui a", options=[1, 2, 3, 4], value=2,
+                         format_func=lambda x: f"{x} semana{'s' if x > 1 else ''}")
+    p = prev[prev["horizonte"] == h]
+    data_alvo = pd.Timestamp(p["data_alvo"].iloc[0])
+
+    c1, c2, c3 = st.columns(3)
+    c1.metric("Casos previstos no estado", f"{p['casos_previstos'].sum():,.0f}".replace(",", "."))
+    c2.metric("Municípios em risco alto ou muito alto",
+              int(p["nivel_risco"].isin(["Alto", "Muito alto"]).sum()))
+    c3.metric("Semana prevista", f"{data_alvo:%d/%m/%Y}")
+
+    fig = px.choropleth(
+        p, geojson=geo, locations="geocode", featureidkey="properties.id",
+        color="incidencia_100k", color_continuous_scale=RAMPA,
+        range_color=(0, max(50, p["incidencia_100k"].quantile(0.98))),
+        hover_name="municipio",
+        hover_data={"geocode": False, "casos_previstos": ":.0f",
+                    "incidencia_100k": ":.1f", "nivel_risco": True},
+        labels={"incidencia_100k": "Casos por 100 mil hab.",
+                "casos_previstos": "Casos previstos", "nivel_risco": "Nível de risco"},
+    )
+    fig.update_geos(fitbounds="locations", visible=False)
+    fig.update_traces(marker_line_width=0.2, marker_line_color="#fcfcfb")
+    fig.update_layout(height=560, margin=dict(l=0, r=0, t=0, b=0),
+                      coloraxis_colorbar=dict(title="Casos por<br>100 mil hab."))
+    st.plotly_chart(fig, width="stretch")
+
+    st.subheader("Municípios com maior incidência prevista")
+    top = (p[p["casos_previstos"] >= 5].sort_values("incidencia_100k", ascending=False).head(15)
+           [["municipio", "casos_previstos", "incidencia_100k", "nivel_risco"]]
+           .rename(columns={"municipio": "Município", "casos_previstos": "Casos previstos",
+                            "incidencia_100k": "Por 100 mil hab.", "nivel_risco": "Nível"}))
+    st.dataframe(top, hide_index=True, width="stretch",
+                 column_config={"Casos previstos": st.column_config.NumberColumn(format="%d"),
+                                "Por 100 mil hab.": st.column_config.NumberColumn(format="%.1f")})
+    st.caption("Níveis de risco por incidência semanal: Baixo < 10 · Moderado 10–50 · "
+               "Alto 50–100 · Muito alto > 100 casos por 100 mil habitantes. "
+               "Ranking considera apenas municípios com pelo menos 5 casos previstos, "
+               "para evitar distorções em cidades muito pequenas.")
+
+# ---------------------------------------------------------------- Município
+with aba_cidade:
+    nomes = sorted(prev["municipio"].unique())
+    cidade = st.selectbox("Município", nomes, index=nomes.index("São Paulo"))
+    hc = hist[hist["municipio"] == cidade].sort_values("data_iniSE")
+    hc = hc[hc["data_iniSE"] >= semana_base - pd.Timedelta(weeks=52)].copy()
+    # Semanas recentes: usa a estimativa corrigida pelo atraso de notificação
+    recente = hc["data_iniSE"] > semana_base - pd.Timedelta(weeks=4)
+    hc["casos"] = hc["casos"].astype(float)
+    hc.loc[recente, "casos"] = hc.loc[recente, ["casos", "casos_est"]].max(axis=1).round()
+    pc = prev[prev["municipio"] == cidade].sort_values("horizonte")
+
+    fig = go.Figure()
+    if "casos_min" in pc.columns:
+        fig.add_scatter(x=pd.concat([pc["data_alvo"], pc["data_alvo"][::-1]]),
+                        y=pd.concat([pc["casos_max"], pc["casos_min"][::-1]]),
+                        fill="toself", fillcolor="rgba(235,104,52,0.2)", line=dict(width=0),
+                        mode="lines",
+                        name="Intervalo de 80%", hoverinfo="skip")
+    fig.add_scatter(x=hc["data_iniSE"], y=hc["casos"], name="Casos notificados",
+                    line=dict(color=COR_REAL, width=2))
+    ponte = pd.concat([hc.tail(1).rename(columns={"data_iniSE": "data_alvo",
+                                                  "casos_est": "casos_previstos"}),
+                       pc])
+    fig.add_scatter(x=ponte["data_alvo"], y=ponte["casos_previstos"], name="Previsão",
+                    line=dict(color=COR_PREV, width=2, dash="dot"), mode="lines+markers",
+                    marker=dict(size=8))
+    fig.update_layout(height=420, hovermode="x unified", yaxis_title="Casos por semana",
+                      legend=dict(orientation="h", y=1.08), margin=dict(l=0, r=0, t=30, b=0))
+    st.plotly_chart(fig, width="stretch")
+    st.caption("As últimas semanas ainda recebem notificações atrasadas; por isso a previsão "
+               "parte da estimativa corrigida (nowcast) do InfoDengue. A faixa sombreada é o "
+               "intervalo de 80%: o valor real deve cair dentro dela em cerca de 8 de cada 10 "
+               "semanas (no teste, caiu em 76%).")
+
+    cols = ["data_alvo", "casos_previstos", "casos_min", "casos_max", "incidencia_100k",
+            "nivel_risco"]
+    st.dataframe(pc[[c for c in cols if c in pc.columns]]
+                 .rename(columns={"data_alvo": "Semana", "casos_previstos": "Casos previstos",
+                                  "casos_min": "Mínimo provável", "casos_max": "Máximo provável",
+                                  "incidencia_100k": "Por 100 mil hab.", "nivel_risco": "Nível"}),
+                 hide_index=True, width="stretch",
+                 column_config={"Semana": st.column_config.DateColumn(format="DD/MM/YYYY"),
+                                "Casos previstos": st.column_config.NumberColumn(format="%d"),
+                                "Mínimo provável": st.column_config.NumberColumn(format="%d"),
+                                "Máximo provável": st.column_config.NumberColumn(format="%d"),
+                                "Por 100 mil hab.": st.column_config.NumberColumn(format="%.1f")})
+
+# ---------------------------------------------------------------- Modelo
+with aba_modelo:
+    st.markdown(
+        "O modelo (LightGBM) foi treinado com dados de **2015 a 2023** e avaliado em "
+        "**2024 a 2026**, período que inclui a maior epidemia de dengue já registrada no estado. "
+        "A comparação é com um *baseline* ingênuo: repetir os casos da semana atual."
+    )
+    linhas = []
+    for k, v in metricas.items():
+        for tipo in ["modelo", "baseline"]:
+            linhas.append({"Horizonte": int(k[1:]), "Tipo": tipo.capitalize(),
+                           "Erro médio (casos)": v[tipo]["mae_casos"]})
+    m = pd.DataFrame(linhas)
+    fig = px.bar(m, x="Horizonte", y="Erro médio (casos)", color="Tipo", barmode="group",
+                 color_discrete_map={"Modelo": COR_PREV, "Baseline": COR_BASE})
+    fig.update_layout(height=380, xaxis_title="Semanas à frente",
+                      legend=dict(orientation="h", y=1.1), margin=dict(l=0, r=0, t=30, b=0))
+    fig.update_traces(marker_line_width=0)
+    fig.update_layout(bargap=0.35, bargroupgap=0.04)
+    st.plotly_chart(fig, width="stretch")
+
+    nomes_t = sorted(teste["municipio"].unique())
+    cidade_t = st.selectbox("Ver previsão x realidade no período de teste", nomes_t,
+                            index=nomes_t.index("São Paulo"))
+    h_t = st.radio("Horizonte", [1, 2, 3, 4], index=1, horizontal=True)
+    t = teste[(teste["municipio"] == cidade_t) & (teste["horizonte"] == h_t)]
+    t = t.sort_values("data_alvo")
+    fig = go.Figure()
+    fig.add_scatter(x=t["data_alvo"], y=t["casos_reais"], name="Real",
+                    line=dict(color=COR_REAL, width=2))
+    fig.add_scatter(x=t["data_alvo"], y=t["casos_previstos"], name="Previsto pelo modelo",
+                    line=dict(color=COR_PREV, width=2))
+    fig.update_layout(height=400, hovermode="x unified", yaxis_title="Casos por semana",
+                      legend=dict(orientation="h", y=1.08), margin=dict(l=0, r=0, t=30, b=0))
+    st.plotly_chart(fig, width="stretch")
+
+# ---------------------------------------------------------------- Monitoramento
+with aba_monit:
+    st.markdown(
+        "Cada previsão publicada fica registrada. Quando a semana prevista se consolida (cerca de "
+        "4 semanas depois, por causa do atraso de notificação), comparamos o previsto com o real. "
+        "Se o modelo ficar pior que o baseline por 4 semanas seguidas, a atualização semanal "
+        "dispara um alerta."
+    )
+    if desempenho.empty:
+        st.info("Ainda não há semanas consolidadas para avaliar.")
+    else:
+        hm = st.radio("Horizonte da previsão", [1, 2, 3, 4], index=3, horizontal=True,
+                      format_func=lambda x: f"{x} semana{'s' if x > 1 else ''}", key="hm")
+        dm = desempenho[desempenho["horizonte"] == hm].sort_values("semana_base")
+        fig = go.Figure()
+        fig.add_scatter(x=dm["semana_base"], y=dm["mae_modelo"], name="Modelo",
+                        line=dict(color=COR_PREV, width=2), mode="lines+markers")
+        fig.add_scatter(x=dm["semana_base"], y=dm["mae_baseline"], name="Baseline",
+                        line=dict(color=COR_BASE, width=2), mode="lines+markers")
+        fig.update_layout(height=360, hovermode="x unified", yaxis_title="Erro médio (casos)",
+                          xaxis_title="Semana em que a previsão foi feita",
+                          legend=dict(orientation="h", y=1.1), margin=dict(l=0, r=0, t=30, b=0))
+        st.plotly_chart(fig, width="stretch")
+        ultimas = dm.tail(8)
+        c1, c2 = st.columns(2)
+        c1.metric("Erro médio do modelo, últimas 8 semanas", f"{ultimas['mae_modelo'].mean():.2f}")
+        c2.metric("Erro médio do baseline, últimas 8 semanas",
+                  f"{ultimas['mae_baseline'].mean():.2f}")
+        st.caption("Na baixa temporada (julho a outubro) os casos mudam pouco de uma semana para "
+                   "outra, e repetir a semana atual fica difícil de bater. O ganho do modelo "
+                   "aparece nas fases de subida e queda.")
+        if (dm["origem"] == "retroativo").any():
+            st.caption("Semanas marcadas como retroativas vêm do período de teste, previstas por "
+                       "modelos que não tinham visto aqueles dados. As semanas seguintes vêm das "
+                       "previsões publicadas pela atualização semanal.")
+    if not versoes.empty:
+        st.subheader("Versões do modelo")
+        st.dataframe(versoes[["versao", "dados_ate", "mae_h1", "mae_h4", "mae_baseline_h4"]]
+                     .rename(columns={"versao": "Versão", "dados_ate": "Dados até",
+                                      "mae_h1": "Erro 1 sem.", "mae_h4": "Erro 4 sem.",
+                                      "mae_baseline_h4": "Baseline 4 sem."})
+                     .sort_values("Versão", ascending=False),
+                     hide_index=True, width="stretch")
+
+st.divider()
+st.caption("Projeto de portfólio · código aberto · os níveis de risco são ilustrativos e não "
+           "substituem os boletins oficiais da vigilância epidemiológica.")

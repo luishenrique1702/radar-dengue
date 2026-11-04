@@ -1,0 +1,74 @@
+{
+  "h1": {
+    "modelo": {
+      "mae_casos": 12.1664541457515,
+      "rmse_log": 0.49116755769543774,
+      "acerto_nivel": 0.7304945954798558,
+      "recall_alerta": 0.8064589715179561,
+      "precisao_alerta": 0.9105191508149675
+    },
+    "baseline": {
+      "mae_casos": 13.352920624522328,
+      "rmse_log": 0.5610922801209968,
+      "acerto_nivel": 0.7228300032754668,
+      "recall_alerta": 0.8527993221664603,
+      "precisao_alerta": 0.8493670886075949
+    },
+    "n_treino": 268965,
+    "n_teste": 91590
+  },
+  "h2": {
+    "modelo": {
+      "mae_casos": 18.090549479609397,
+      "rmse_log": 0.5635911887344529,
+      "acerto_nivel": 0.6992467975149815,
+      "recall_alerta": 0.7727064069775067,
+      "precisao_alerta": 0.8978207863456263
+    },
+    "baseline": {
+      "mae_casos": 21.445983836384627,
+      "rmse_log": 0.6565453668747968,
+      "acerto_nivel": 0.6849304524712738,
+      "recall_alerta": 0.8247426060725294,
+      "precisao_alerta": 0.8169741457710796
+    },
+    "n_treino": 268320,
+    "n_teste": 90945
+  },
+  "h3": {
+    "modelo": {
+      "mae_casos": 22.22126407342521,
+      "rmse_log": 0.6201576555514905,
+      "acerto_nivel": 0.6810188261351052,
+      "recall_alerta": 0.7427768595041322,
+      "precisao_alerta": 0.8870159093600727
+    },
+    "baseline": {
+      "mae_casos": 29.17345514950166,
+      "rmse_log": 0.7461202560056062,
+      "acerto_nivel": 0.654750830564784,
+      "recall_alerta": 0.799900826446281,
+      "precisao_alerta": 0.7862039834941678
+    },
+    "n_treino": 267675,
+    "n_teste": 90300
+  },
+  "h4": {
+    "modelo": {
+      "mae_casos": 26.39690232247169,
+      "rmse_log": 0.6792265125651441,
+      "acerto_nivel": 0.6566281858234343,
+      "recall_alerta": 0.7145579140899214,
+      "precisao_alerta": 0.8725254092003756
+    },
+    "baseline": {
+      "mae_casos": 36.6416262338966,
+      "rmse_log": 0.8371383415662526,
+      "acerto_nivel": 0.625586972282639,
+      "recall_alerta": 0.7731238509109143,
+      "precisao_alerta": 0.7517633674630262
+    },
+    "n_treino": 267030,
+    "n_teste": 89655
+  }
+}
