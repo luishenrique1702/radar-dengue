@@ -25,6 +25,24 @@ RAMPA = ["#cde2fb", "#86b6ef", "#3987e5", "#256abf", "#104281", "#0d366b"]
 NIVEIS = {"Baixo": "#86b6ef", "Moderado": "#3987e5", "Alto": "#1c5cab", "Muito alto": "#0d366b"}
 COR_REAL, COR_PREV, COR_BASE = "#2a78d6", "#eb6834", "#898781"
 
+
+def tabela(df: pd.DataFrame, formatos: dict | None = None) -> None:
+    """Tabela estática (st.table).
+
+    Usamos st.table em vez de st.dataframe porque o componente interativo é carregado à parte
+    pelo navegador, e em apps privados esse carregamento às vezes falha.
+    """
+    t = df.copy()
+    for col, fmt in (formatos or {}).items():
+        if col in t.columns:
+            t[col] = t[col].map(lambda v, f=fmt: f(v) if pd.notna(v) else "")
+    st.table(t.set_index(t.columns[0]) if not isinstance(t.index, pd.MultiIndex) else t)
+
+
+def br(v: float, casas: int = 0) -> str:
+    """Número no formato brasileiro (1.234,5)."""
+    return f"{v:,.{casas}f}".replace(",", "X").replace(".", ",").replace("X", ".")
+
 st.set_page_config(page_title="Radar Dengue SP", page_icon="🦟", layout="wide")
 
 
@@ -96,9 +114,7 @@ with aba_mapa:
            [["municipio", "casos_previstos", "incidencia_100k", "nivel_risco"]]
            .rename(columns={"municipio": "Município", "casos_previstos": "Casos previstos",
                             "incidencia_100k": "Por 100 mil hab.", "nivel_risco": "Nível"}))
-    st.dataframe(top, hide_index=True, width="stretch",
-                 column_config={"Casos previstos": st.column_config.NumberColumn(format="%d"),
-                                "Por 100 mil hab.": st.column_config.NumberColumn(format="%.1f")})
+    tabela(top, {"Casos previstos": br, "Por 100 mil hab.": lambda v: br(v, 1)})
     st.caption("Níveis de risco por incidência semanal: Baixo < 10 · Moderado 10–50 · "
                "Alto 50–100 · Muito alto > 100 casos por 100 mil habitantes. "
                "Ranking considera apenas municípios com pelo menos 5 casos previstos, "
@@ -141,16 +157,12 @@ with aba_cidade:
 
     cols = ["data_alvo", "casos_previstos", "casos_min", "casos_max", "incidencia_100k",
             "nivel_risco"]
-    st.dataframe(pc[[c for c in cols if c in pc.columns]]
-                 .rename(columns={"data_alvo": "Semana", "casos_previstos": "Casos previstos",
-                                  "casos_min": "Mínimo provável", "casos_max": "Máximo provável",
-                                  "incidencia_100k": "Por 100 mil hab.", "nivel_risco": "Nível"}),
-                 hide_index=True, width="stretch",
-                 column_config={"Semana": st.column_config.DateColumn(format="DD/MM/YYYY"),
-                                "Casos previstos": st.column_config.NumberColumn(format="%d"),
-                                "Mínimo provável": st.column_config.NumberColumn(format="%d"),
-                                "Máximo provável": st.column_config.NumberColumn(format="%d"),
-                                "Por 100 mil hab.": st.column_config.NumberColumn(format="%.1f")})
+    tabela(pc[[c for c in cols if c in pc.columns]]
+           .rename(columns={"data_alvo": "Semana", "casos_previstos": "Casos previstos",
+                            "casos_min": "Mínimo provável", "casos_max": "Máximo provável",
+                            "incidencia_100k": "Por 100 mil hab.", "nivel_risco": "Nível"}),
+           {"Semana": lambda v: f"{pd.Timestamp(v):%d/%m/%Y}", "Casos previstos": br,
+            "Mínimo provável": br, "Máximo provável": br, "Por 100 mil hab.": lambda v: br(v, 1)})
 
 # ---------------------------------------------------------------- Modelo
 with aba_modelo:
@@ -185,9 +197,9 @@ with aba_modelo:
                           margin=dict(l=0, r=0, t=60, b=0), bargap=0.2, bargroupgap=0.04)
         fig.update_traces(marker_line_width=0)
         st.plotly_chart(fig, width="stretch")
-        tabela = cmp.pivot(index="Método", columns="Horizonte", values="Erro médio (casos)")
-        tabela = tabela.loc[[m for m in cores if m in tabela.index]].rename(columns=lambda c: f"{c} sem.")
-        st.dataframe(tabela.round(1), width="stretch")
+        tab = cmp.pivot(index="Método", columns="Horizonte", values="Erro médio (casos)")
+        tab = tab.loc[[m for m in cores if m in tab.index]].rename(columns=lambda c: f"{c} sem.")
+        st.table(tab.map(lambda v: br(v, 1)))
         st.caption(
             "Erro médio absoluto, em casos por município por semana; menor é melhor. Repetir o ano "
             "anterior falha porque os anos são muito diferentes (2024 teve 5 vezes mais casos que "
@@ -224,7 +236,7 @@ with aba_modelo:
                           yaxis=dict(range=[60, 100]), hovermode="x unified",
                           legend=dict(orientation="h", y=1.15), margin=dict(l=0, r=0, t=30, b=0))
         st.plotly_chart(fig, width="stretch")
-        st.dataframe(al.set_index("Semanas à frente").round(0), width="stretch")
+        st.table(al.set_index("Semanas à frente").map(lambda v: f"{v:.0f}%"))
         st.caption(
             "O alerta oficial de hoje é muito bom para dizer quem continuará em epidemia, mas, por "
             "definição, não antecipa municípios que ainda não entraram nela. O modelo detecta "
@@ -285,12 +297,12 @@ with aba_monit:
                        "previsões publicadas pela atualização semanal.")
     if not versoes.empty:
         st.subheader("Versões do modelo")
-        st.dataframe(versoes[["versao", "dados_ate", "mae_h1", "mae_h4", "mae_baseline_h4"]]
-                     .rename(columns={"versao": "Versão", "dados_ate": "Dados até",
-                                      "mae_h1": "Erro 1 sem.", "mae_h4": "Erro 4 sem.",
-                                      "mae_baseline_h4": "Baseline 4 sem."})
-                     .sort_values("Versão", ascending=False),
-                     hide_index=True, width="stretch")
+        tabela(versoes[["versao", "dados_ate", "mae_h1", "mae_h4", "mae_baseline_h4"]]
+               .rename(columns={"versao": "Versão", "dados_ate": "Dados até",
+                                "mae_h1": "Erro 1 sem.", "mae_h4": "Erro 4 sem.",
+                                "mae_baseline_h4": "Baseline 4 sem."})
+               .sort_values("Versão", ascending=False).head(10),
+               {c: lambda v: br(v, 2) for c in ["Erro 1 sem.", "Erro 4 sem.", "Baseline 4 sem."]})
 
 st.divider()
 st.caption("Projeto de portfólio · código aberto · os níveis de risco são ilustrativos e não "
