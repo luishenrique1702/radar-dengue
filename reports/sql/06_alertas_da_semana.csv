@@ -1,0 +1,52 @@
+semanas_a_frente,data_alvo,municipio,regiao,casos_previstos,minimo_provavel,maximo_provavel,incidencia_100k,nivel_risco
+1,2026-11-01,Dracena,Oeste,41.0,25.0,58.0,89.6,Alto
+1,2026-11-01,Ilhabela,Leste,31.0,17.0,43.0,81.2,Alto
+1,2026-11-01,Euclides da Cunha Paulista,Oeste,6.0,2.0,11.0,80.4,Alto
+1,2026-11-01,Saltinho,Leste,7.0,2.0,11.0,77.9,Alto
+1,2026-11-01,Andradina,Oeste,44.0,29.0,59.0,74.2,Alto
+1,2026-11-01,Ibirá,Centro,8.0,3.0,13.0,67.6,Alto
+1,2026-11-01,Araçatuba,Oeste,129.0,96.0,157.0,60.1,Alto
+1,2026-11-01,São João da Boa Vista,Leste,55.0,38.0,71.0,59.1,Alto
+1,2026-11-01,Castilho,Oeste,11.0,5.0,18.0,57.2,Alto
+1,2026-11-01,Valparaíso,Oeste,13.0,7.0,20.0,56.2,Alto
+1,2026-11-01,Teodoro Sampaio,Oeste,11.0,6.0,18.0,51.5,Alto
+2,2026-11-08,Dracena,Oeste,42.0,24.0,66.0,92.6,Alto
+2,2026-11-08,Euclides da Cunha Paulista,Oeste,7.0,1.0,12.0,83.3,Alto
+2,2026-11-08,Ilhabela,Leste,31.0,16.0,48.0,80.7,Alto
+2,2026-11-08,Andradina,Oeste,47.0,29.0,65.0,79.8,Alto
+2,2026-11-08,Saltinho,Leste,7.0,2.0,12.0,77.4,Alto
+2,2026-11-08,Sud Mennucci,Oeste,5.0,1.0,10.0,70.9,Alto
+2,2026-11-08,Ibirá,Centro,8.0,3.0,14.0,69.7,Alto
+2,2026-11-08,Araçatuba,Oeste,132.0,95.0,169.0,61.6,Alto
+2,2026-11-08,São João da Boa Vista,Leste,56.0,37.0,76.0,60.3,Alto
+2,2026-11-08,Valparaíso,Oeste,14.0,6.0,22.0,59.7,Alto
+2,2026-11-08,Castilho,Oeste,12.0,5.0,21.0,59.6,Alto
+2,2026-11-08,Teodoro Sampaio,Oeste,12.0,5.0,22.0,53.2,Alto
+2,2026-11-08,Birigui,Oeste,60.0,41.0,83.0,51.0,Alto
+3,2026-11-15,Dracena,Oeste,40.0,18.0,72.0,87.6,Alto
+3,2026-11-15,Andradina,Oeste,47.0,27.0,73.0,78.3,Alto
+3,2026-11-15,Ilhabela,Leste,28.0,12.0,47.0,72.4,Alto
+3,2026-11-15,Euclides da Cunha Paulista,Oeste,6.0,1.0,12.0,72.3,Alto
+3,2026-11-15,Saltinho,Leste,6.0,2.0,11.0,72.2,Alto
+3,2026-11-15,Sud Mennucci,Oeste,5.0,1.0,11.0,71.5,Alto
+3,2026-11-15,Ibirá,Centro,8.0,2.0,15.0,70.0,Alto
+3,2026-11-15,Castilho,Oeste,12.0,4.0,23.0,62.0,Alto
+3,2026-11-15,Araçatuba,Oeste,132.0,89.0,177.0,61.8,Alto
+3,2026-11-15,Valparaíso,Oeste,14.0,5.0,23.0,59.4,Alto
+3,2026-11-15,São João da Boa Vista,Leste,53.0,33.0,78.0,57.5,Alto
+3,2026-11-15,Birigui,Oeste,61.0,39.0,91.0,51.9,Alto
+4,2026-11-22,Rubinéia,Oeste,5.0,0.0,10.0,130.0,Muito alto
+4,2026-11-22,Dracena,Oeste,44.0,15.0,73.0,97.0,Alto
+4,2026-11-22,Andradina,Oeste,54.0,26.0,83.0,90.6,Alto
+4,2026-11-22,Sud Mennucci,Oeste,6.0,1.0,12.0,87.2,Alto
+4,2026-11-22,Ibirá,Centro,9.0,2.0,17.0,78.7,Alto
+4,2026-11-22,Ilhabela,Leste,29.0,12.0,53.0,76.7,Alto
+4,2026-11-22,Euclides da Cunha Paulista,Oeste,6.0,1.0,13.0,75.9,Alto
+4,2026-11-22,Castilho,Oeste,15.0,4.0,27.0,74.6,Alto
+4,2026-11-22,Saltinho,Leste,6.0,2.0,12.0,72.7,Alto
+4,2026-11-22,Araçatuba,Oeste,139.0,85.0,188.0,65.1,Alto
+4,2026-11-22,Valparaíso,Oeste,15.0,5.0,26.0,63.6,Alto
+4,2026-11-22,São João da Boa Vista,Leste,52.0,32.0,83.0,55.8,Alto
+4,2026-11-22,Birigui,Oeste,65.0,38.0,96.0,55.2,Alto
+4,2026-11-22,Pereira Barreto,Oeste,12.0,3.0,21.0,51.3,Alto
+4,2026-11-22,Teodoro Sampaio,Oeste,11.0,4.0,21.0,50.3,Alto

@@ -1,4 +1,4 @@
-.PHONY: install dados treino comparar previsao monitor pipeline app testes lint
+.PHONY: install dados treino comparar previsao monitor sql pipeline app testes lint
 
 install:
 	pip install -e ".[dev,analise]"
@@ -18,7 +18,10 @@ previsao:
 monitor:
 	python -m radar_dengue.monitor
 
-pipeline: dados treino comparar previsao monitor
+sql:
+	python -m radar_dengue.warehouse
+
+pipeline: dados treino comparar previsao monitor sql
 
 app:
 	streamlit run app/streamlit_app.py

@@ -12,3 +12,4 @@ reports/relatorio.html
 # Regenerados pelo pipeline (make pipeline); não versionar para o repositório não crescer toda semana
 data/raw/
 models/*.joblib
+data/radar.duckdb

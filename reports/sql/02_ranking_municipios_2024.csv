@@ -1,0 +1,16 @@
+regiao,municipio,casos_2024,incidencia_100k,posicao
+Centro,Botucatu,29819.0,20130.0,1
+Centro,Dois Córregos,5444.0,19788.0,2
+Centro,Olímpia,9345.0,16676.0,3
+Centro,Bebedouro,12327.0,15895.0,4
+Centro,São José do Rio Preto,74909.0,15749.0,5
+Leste,Ilhabela,12327.0,32237.0,1
+Leste,Espírito Santo do Pinhal,11779.0,26487.0,2
+Leste,Jacareí,61620.0,24492.0,3
+Leste,Santo Antônio de Posse,5439.0,23116.0,4
+Leste,São José dos Campos,163799.0,22446.0,5
+Oeste,Votuporanga,19903.0,20562.0,1
+Oeste,Assis,13068.0,12435.0,2
+Oeste,Paraguaçu Paulista,5151.0,11211.0,3
+Oeste,Guararapes,3700.0,11178.0,4
+Oeste,Tupã,6655.0,10149.0,5
