@@ -1,6 +1,6 @@
 # Dependências do dashboard (Streamlit Cloud e Docker), nas versões testadas.
 # O pipeline de treino instala as dependências completas pelo pyproject.toml.
 pandas==3.0.5
-pyarrow==26.0.1
+pyarrow==24.0.0  # o Streamlit Cloud troca a 26.0.1, que tem um bug conhecido
 plotly==7.1.0
 streamlit==1.66.1
