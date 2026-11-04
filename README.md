@@ -10,7 +10,7 @@ Previsão semanal de casos de dengue para os 645 municípios de São Paulo, de 1
 
 - **Problema:** secretarias de saúde precisam saber com semanas de antecedência onde a dengue vai aumentar, para reforçar o combate ao mosquito e preparar o atendimento.
 - **Solução:** um modelo LightGBM com função de perda de Poisson, treinado com 12 anos de dados do InfoDengue (Fiocruz/FGV), que prevê os casos de cada município com intervalos de incerteza calibrados.
-- **Resultado:** erra de **13% a 30% menos** que repetir a semana atual e, combinado com o alerta oficial do InfoDengue, detecta **89% das epidemias com 4 semanas de antecedência**, contra 74% do alerta sozinho.
+- **Resultado:** erra de **13% a 30% menos** que repetir a semana atual e, combinado com o alerta oficial do InfoDengue, identifica com 4 semanas de antecedência **89% dos municípios que entram em nível epidêmico**, contra 74% do alerta sozinho.
 
 ## Resultados
 
@@ -18,11 +18,11 @@ Avaliação em 2024–2026, período que o modelo nunca viu no treino e que incl
 
 | | |
 |---|---|
-| **Precisão** | Erro de 11,6 casos por município-semana com 1 semana de antecedência e 25,8 com 4 semanas, contra 13,4 e 36,6 do baseline. Diferença estatisticamente significativa (teste de Diebold-Mariano). |
+| **Precisão** | Erro de 11,6 casos por município-semana com 1 semana de antecedência e 25,8 com 4 semanas, contra 13,4 e 36,6 do baseline. A diferença é estatisticamente significativa com 2 a 4 semanas (teste de Diebold-Mariano, p ≤ 0,015 na escala log); com 1 semana, o ganho é pequeno e não significativo (p ≈ 0,07). |
 | **Comparação** | Venceu cinco alternativas, incluindo a binomial negativa, referência estatística para contagens, que fica perto só com 3 e 4 semanas. |
 | **Alerta oficial** | O alerta do InfoDengue é melhor para dizer quem continua em epidemia; o modelo antecipa cerca de metade das novas epidemias. Os dois juntos detectam mais, ao custo de mais alarmes falsos. |
 | **Incerteza** | Intervalos de 50%, 80% e 95% com calibração conformal: o de 95% cobre 94,6% dos valores reais. |
-| **Clima** | Controlando a época do ano, cada +1 °C se associa a só 4% a 7% mais casos. A correlação forte vista nos dados brutos era sazonal. |
+| **Clima** | Controlando a época do ano, cada +1 °C se associa a só 4% a 7% mais casos, no curto prazo (associação observacional). A correlação forte vista nos dados brutos era sazonal. |
 | **Epidemia de 2024** | Foi recorde porque atingiu o leste do estado, que tinha pouca dengue: incidência quase 9 vezes maior que em 2023. |
 | **Ponto fraco** | Subestima o início das epidemias; reconhece bem o fim. |
 
@@ -67,6 +67,7 @@ API do InfoDengue ──► coleta e validação (645 municípios, 2015–hoje)
 
 ## Limitações
 
+- O teste usa os **casos já consolidados**; em tempo real, a semana atual depende de uma estimativa (nowcast) com erro. Numa simulação, isso aumenta o erro de curto prazo, mas o modelo continua melhor que o baseline.
 - Avaliado em **um estado e uma grande epidemia**; o desempenho em outros contextos não foi testado.
 - **Casos notificados**, não confirmados, como na vigilância.
 - Intervalos ainda **estreitos nas cidades grandes**, cujas epidemias recentes foram mais extremas que o histórico.

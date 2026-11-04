@@ -189,8 +189,8 @@ with aba_modelo:
         "**Conclusão:** o LightGBM com objetivo Poisson prevê os casos de dengue melhor que todos "
         "os métodos testados, em todos os horizontes. Com 4 semanas de antecedência, erra 30% "
         "menos que repetir a semana atual. Ele não substitui o alerta oficial do InfoDengue, "
-        "mas o complementa: usando os dois juntos, a detecção de epidemias com 4 semanas de "
-        "antecedência sobe de 74% para 89%."
+        "mas o complementa: usando os dois juntos, a identificação de municípios que entram em nível "
+        "epidêmico, com 4 semanas de antecedência, sobe de 74% para 89%."
     )
     st.markdown(
         "O modelo foi treinado com dados de **2015 a 2023** e avaliado em **2024 a 2026**, "
