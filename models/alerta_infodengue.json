@@ -1,0 +1,70 @@
+{
+  "h1": {
+    "eventos": 16000,
+    "limiar_incidencia": 150,
+    "oficial": {
+      "precisao": 0.9040617991527535,
+      "recall": 0.907,
+      "alertas": 16052
+    },
+    "combinado": {
+      "precisao": 0.7591986511950808,
+      "recall": 0.956875,
+      "alertas": 20166
+    },
+    "novas_epidemias": 1488,
+    "novas_detectadas_pelo_modelo": 0.5362903225806451,
+    "precisao_alertas_novos": 0.19397180359747204
+  },
+  "h2": {
+    "eventos": 15933,
+    "limiar_incidencia": 150,
+    "oficial": {
+      "precisao": 0.827373536007974,
+      "recall": 0.8335530032009038,
+      "alertas": 16052
+    },
+    "combinado": {
+      "precisao": 0.7077065833170542,
+      "recall": 0.9094960145609741,
+      "alertas": 20476
+    },
+    "novas_epidemias": 2652,
+    "novas_detectadas_pelo_modelo": 0.45625942684766213,
+    "precisao_alertas_novos": 0.27350813743218805
+  },
+  "h3": {
+    "eventos": 15833,
+    "limiar_incidencia": 100,
+    "oficial": {
+      "precisao": 0.7731746822825816,
+      "recall": 0.7838691340870334,
+      "alertas": 16052
+    },
+    "combinado": {
+      "precisao": 0.6039077862850927,
+      "recall": 0.9116402450577907,
+      "alertas": 23901
+    },
+    "novas_epidemias": 3422,
+    "novas_detectadas_pelo_modelo": 0.5911747516072472,
+    "precisao_alertas_novos": 0.2577398394699962
+  },
+  "h4": {
+    "eventos": 15701,
+    "limiar_incidencia": 100,
+    "oficial": {
+      "precisao": 0.7232120608023922,
+      "recall": 0.7393796573466658,
+      "alertas": 16052
+    },
+    "combinado": {
+      "precisao": 0.5740809353258408,
+      "recall": 0.8881599898095662,
+      "alertas": 24291
+    },
+    "novas_epidemias": 4092,
+    "novas_detectadas_pelo_modelo": 0.570869990224829,
+    "precisao_alertas_novos": 0.28352955455759193
+  }
+}

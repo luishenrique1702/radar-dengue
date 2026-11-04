@@ -43,10 +43,12 @@ def load():
     versoes = pd.read_csv(arq_reg) if arq_reg.exists() else pd.DataFrame()
     arq_cmp = MODELS / "comparacao.json"
     comparacao = json.loads(arq_cmp.read_text(encoding="utf-8")) if arq_cmp.exists() else {}
-    return prev, hist, teste, geo, metricas, desempenho, versoes, comparacao
+    arq_al = MODELS / "alerta_infodengue.json"
+    alerta = json.loads(arq_al.read_text(encoding="utf-8")) if arq_al.exists() else {}
+    return prev, hist, teste, geo, metricas, desempenho, versoes, comparacao, alerta
 
 
-prev, hist, teste, geo, metricas, desempenho, versoes, comparacao = load()
+prev, hist, teste, geo, metricas, desempenho, versoes, comparacao, alerta = load()
 semana_base = pd.Timestamp(prev["semana_base"].iloc[0])
 
 st.title("Radar Dengue · Estado de São Paulo")
@@ -153,42 +155,81 @@ with aba_cidade:
 # ---------------------------------------------------------------- Modelo
 with aba_modelo:
     st.success(
-        "**Conclusão:** o LightGBM prevê os casos de dengue melhor que todos os métodos "
-        "alternativos testados, em todos os horizontes. Com 4 semanas de antecedência, erra 28% "
-        "menos que repetir a semana atual. O ponto fraco é o início das epidemias: o modelo "
-        "antecipa parte da subida, mas não toda."
+        "**Conclusão:** o LightGBM com objetivo Poisson prevê os casos de dengue melhor que todos "
+        "os métodos testados, em todos os horizontes. Com 4 semanas de antecedência, erra 30% "
+        "menos que repetir a semana atual. Ele não substitui o alerta oficial do InfoDengue, "
+        "mas o complementa: usando os dois juntos, a detecção de epidemias com 4 semanas de "
+        "antecedência sobe de 74% para 89%."
     )
     st.markdown(
         "O modelo foi treinado com dados de **2015 a 2023** e avaliado em **2024 a 2026**, "
         "período que ele nunca viu e que inclui a maior epidemia de dengue já registrada no "
-        "estado. Ele foi comparado com três alternativas:"
+        "estado."
     )
+    st.subheader("Comparação entre métodos")
     if comparacao:
-        linhas = [{"Horizonte": int(k[1:]), "Método": metodo, "Erro médio (casos)": v}
-                  for k, d in comparacao.items() for metodo, v in d.items()]
-        cmp = pd.DataFrame(linhas)
         cores = {"Repetir o mesmo período do ano anterior": "#c3c2b7",
                  "Regressão linear": "#1baf7a",
                  "Repetir a semana atual (baseline)": COR_BASE,
-                 "LightGBM (modelo escolhido)": COR_PREV}
+                 "Binomial negativa": "#6250d6",
+                 "LightGBM em escala log": "#2a78d6",
+                 "LightGBM Poisson (modelo escolhido)": COR_PREV}
+        linhas = [{"Horizonte": int(k[1:]), "Método": metodo, "Erro médio (casos)": v}
+                  for k, d in comparacao.items() for metodo, v in d.items() if metodo in cores]
+        cmp = pd.DataFrame(linhas)
         fig = px.bar(cmp, x="Horizonte", y="Erro médio (casos)", color="Método",
                      barmode="group", color_discrete_map=cores,
                      category_orders={"Método": list(cores)})
-        fig.update_layout(height=420, xaxis_title="Semanas à frente",
-                          legend=dict(orientation="h", y=1.15, title=None),
-                          margin=dict(l=0, r=0, t=40, b=0), bargap=0.25, bargroupgap=0.04)
+        fig.update_layout(height=440, xaxis_title="Semanas à frente",
+                          legend=dict(orientation="h", y=1.2, title=None),
+                          margin=dict(l=0, r=0, t=60, b=0), bargap=0.2, bargroupgap=0.04)
         fig.update_traces(marker_line_width=0)
         st.plotly_chart(fig, width="stretch")
         tabela = cmp.pivot(index="Método", columns="Horizonte", values="Erro médio (casos)")
-        tabela = tabela.loc[list(cores)].rename(columns=lambda c: f"{c} sem.")
+        tabela = tabela.loc[[m for m in cores if m in tabela.index]].rename(columns=lambda c: f"{c} sem.")
         st.dataframe(tabela.round(1), width="stretch")
         st.caption(
-            "Erro médio absoluto, em casos por município por semana; menor é melhor. "
-            "Repetir o ano anterior falha porque os anos são muito diferentes entre si (2024 teve "
-            "5 vezes mais casos que 2023). A regressão linear, com os mesmos atributos do "
-            "LightGBM, perde até do baseline: as relações entre os atributos e os casos não são "
-            "lineares. A análise completa, com testes de significância, está nos notebooks do "
-            "projeto."
+            "Erro médio absoluto, em casos por município por semana; menor é melhor. Repetir o ano "
+            "anterior falha porque os anos são muito diferentes (2024 teve 5 vezes mais casos que "
+            "2023). A regressão linear perde até do baseline: as relações não são lineares. A "
+            "binomial negativa, modelo estatístico clássico para contagens, fica perto do "
+            "LightGBM com 3 e 4 semanas de antecedência, mas perde com 1 semana. O objetivo "
+            "Poisson, próprio para contagens, melhorou o LightGBM em 2% a 6%."
+        )
+
+    if alerta:
+        st.subheader("Comparação com o alerta oficial do InfoDengue")
+        st.markdown(
+            "O InfoDengue (Fiocruz/FGV) classifica cada município em quatro níveis. O nível 4 "
+            "indica incidência acima do limiar epidêmico do próprio município. A pergunta: "
+            "o município estará no nível 4 daqui a algumas semanas?"
+        )
+        al = pd.DataFrame([{
+            "Semanas à frente": int(k[1:]),
+            "Alerta oficial de hoje: precisão": v["oficial"]["precisao"] * 100,
+            "Alerta oficial de hoje: detecção": v["oficial"]["recall"] * 100,
+            "Oficial + modelo: precisão": v["combinado"]["precisao"] * 100,
+            "Oficial + modelo: detecção": v["combinado"]["recall"] * 100,
+            "Novas epidemias detectadas pelo modelo": v["novas_detectadas_pelo_modelo"] * 100,
+        } for k, v in alerta.items()])
+        fig = go.Figure()
+        fig.add_scatter(x=al["Semanas à frente"], y=al["Alerta oficial de hoje: detecção"],
+                        name="Só o alerta oficial", mode="lines+markers",
+                        line=dict(color=COR_BASE, width=2), marker=dict(size=9))
+        fig.add_scatter(x=al["Semanas à frente"], y=al["Oficial + modelo: detecção"],
+                        name="Alerta oficial + modelo", mode="lines+markers",
+                        line=dict(color=COR_PREV, width=2), marker=dict(size=9))
+        fig.update_layout(height=340, yaxis_title="Epidemias detectadas (%)",
+                          xaxis=dict(title="Semanas à frente", tickvals=[1, 2, 3, 4]),
+                          yaxis=dict(range=[60, 100]), hovermode="x unified",
+                          legend=dict(orientation="h", y=1.15), margin=dict(l=0, r=0, t=30, b=0))
+        st.plotly_chart(fig, width="stretch")
+        st.dataframe(al.set_index("Semanas à frente").round(0), width="stretch")
+        st.caption(
+            "O alerta oficial de hoje é muito bom para dizer quem continuará em epidemia, mas, por "
+            "definição, não antecipa municípios que ainda não entraram nela. O modelo detecta "
+            "cerca de metade dessas novas epidemias. Usando os dois juntos, a detecção sobe; o "
+            "custo é mais alarmes falsos (a precisão cai), uma escolha de gestão."
         )
 
     st.subheader("Previsão x realidade no período de teste")

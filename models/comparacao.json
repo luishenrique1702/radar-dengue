@@ -3,24 +3,32 @@
     "Repetir o mesmo período do ano anterior": 89.88980238017251,
     "Regressão linear": 20.433235000558593,
     "Repetir a semana atual (baseline)": 13.352920624522328,
-    "LightGBM (modelo escolhido)": 12.1664541457515
+    "Binomial negativa": 16.151829369138248,
+    "LightGBM em escala log": 12.1664541457515,
+    "LightGBM Poisson (modelo escolhido)": 11.6110898058015
   },
   "h2": {
     "Repetir o mesmo período do ano anterior": 91.28998845456044,
     "Regressão linear": 29.503350241292086,
     "Repetir a semana atual (baseline)": 21.445983836384627,
-    "LightGBM (modelo escolhido)": 18.090549479609397
+    "Binomial negativa": 19.82804755574691,
+    "LightGBM em escala log": 18.090549479609397,
+    "LightGBM Poisson (modelo escolhido)": 17.024520867615344
   },
   "h3": {
     "Repetir o mesmo período do ano anterior": 92.84856035437431,
     "Regressão linear": 36.64276476911087,
     "Repetir a semana atual (baseline)": 29.17345514950166,
-    "LightGBM (modelo escolhido)": 22.22126407342521
+    "Binomial negativa": 23.595647853069266,
+    "LightGBM em escala log": 22.22126407342521,
+    "LightGBM Poisson (modelo escolhido)": 20.9670502643553
   },
   "h4": {
     "Repetir o mesmo período do ano anterior": 94.49636941609504,
     "Regressão linear": 42.39606670893231,
     "Repetir a semana atual (baseline)": 36.6416262338966,
-    "LightGBM (modelo escolhido)": 26.39690232247169
+    "Binomial negativa": 27.53303885149628,
+    "LightGBM em escala log": 26.39690232247169,
+    "LightGBM Poisson (modelo escolhido)": 25.77766826975009
   }
 }

@@ -15,7 +15,7 @@ subirem.** O projeto responde a três perguntas:
 
 | Pergunta | Resposta |
 |---|---|
-| 1. Dá para prever os casos de cada município com até 4 semanas de antecedência melhor do que repetindo a semana atual? | **Sim.** O erro cai 9% (1 semana) a 28% (4 semanas), com significância estatística. |
+| 1. Dá para prever os casos de cada município com até 4 semanas de antecedência melhor do que repetindo a semana atual? | **Sim.** O erro cai 13% (1 semana) a 30% (4 semanas), com significância estatística. |
 | 2. O clima ajuda a prever, além do que a época do ano já explica? | **Muito pouco.** Controlando a sazonalidade, +1 °C se associa a só 4% a 7% mais casos, no curto prazo. |
 | 3. Onde e quando o modelo falha? | **No início das epidemias e nas cidades pequenas.** Ele reconhece bem o fim de uma epidemia, mas subestima a aceleração. |
 
@@ -33,9 +33,10 @@ caminhando para um nível de risco alto?*
 
 | | |
 |---|---|
-| **Desempenho** | O modelo erra **9% a 28% menos** que o baseline ingênuo (repetir a semana atual), com ganho crescente com o horizonte. |
+| **Desempenho** | O modelo erra **13% a 30% menos** que o baseline ingênuo (repetir a semana atual), com ganho crescente com o horizonte. |
 | **Significância** | A melhora é estatisticamente significativa na escala log em todos os horizontes (teste de Diebold-Mariano, p < 0,01). |
-| **Comparação** | Regressão linear e "repetir o ano anterior" perdem até do baseline: as relações são não lineares. |
+| **Comparação** | Venceu cinco alternativas, incluindo a binomial negativa, referência estatística para contagens. Regressão linear e "repetir o ano anterior" perdem até do baseline. |
+| **Alerta oficial** | Complementa o alerta do InfoDengue (Fiocruz/FGV): juntos, detectam 89% das epidemias com 4 semanas de antecedência, contra 74% do alerta oficial sozinho. |
 | **Incerteza** | Intervalos de 80% cobrem 76% dos valores reais no teste. |
 | **Clima** | Controlando a época do ano, cada +1 °C se associa a só 4% a 7% mais casos, no curto prazo. A correlação forte vista nos dados brutos era quase toda sazonal. |
 | **Epidemia de 2024** | Foi recorde porque atingiu o Leste do estado (capital, Vale do Paraíba, litoral), historicamente pouco afetado: incidência quase 9 vezes maior que em 2023. |
@@ -44,14 +45,14 @@ caminhando para um nível de risco alto?*
 
 | Horizonte | Erro médio, modelo | Erro médio, baseline | Redução | Precisão do alerta* |
 |:--:|:--:|:--:|:--:|:--:|
-| 1 semana | 12,2 casos | 13,4 | **-9%** | 91% |
-| 2 semanas | 18,1 | 21,4 | **-16%** | 90% |
-| 3 semanas | 22,2 | 29,2 | **-24%** | 89% |
-| 4 semanas | 26,4 | 36,6 | **-28%** | 87% |
+| 1 semana | 11,6 casos | 13,4 | **-13%** | 87% |
+| 2 semanas | 17,0 | 21,4 | **-21%** | 85% |
+| 3 semanas | 21,0 | 29,2 | **-28%** | 83% |
+| 4 semanas | 25,8 | 36,6 | **-30%** | 81% |
 
 \* Dos municípios-semana classificados como risco alto ou muito alto, quantos realmente atingiram
-esse nível. O *recall* (71% a 81%) é um pouco menor que o do baseline: o modelo é mais certeiro, mas
-mais conservador.
+esse nível. O modelo também detecta mais desses casos que o baseline (*recall* de 81% a 86%, contra
+77% a 85%): é mais certeiro sem ser mais conservador.
 
 ## Análises
 
@@ -61,7 +62,7 @@ Os três notebooks em [`notebooks/`](notebooks) contam a história completa, com
 |---|---|
 | [01 · Análise descritiva](notebooks/01_analise_descritiva.ipynb) | Qualidade dos dados, atraso de notificação, evolução 2015–2026, sazonalidade, porte e região, distribuição, clima |
 | [02 · Análise inferencial](notebooks/02_analise_inferencial.ipynb) | Regressão binomial negativa com efeitos fixos (clima × dengue) e teste de Diebold-Mariano (modelo × baseline) |
-| [03 · Modelagem e avaliação](notebooks/03_modelagem_e_avaliacao.ipynb) | Comparação de 4 métodos, ajuste de hiperparâmetros, erros por porte, região e fase da epidemia, SHAP, regressão quantílica |
+| [03 · Modelagem e avaliação](notebooks/03_modelagem_e_avaliacao.ipynb) | Comparação de 6 métodos (incluindo binomial negativa), ajuste de hiperparâmetros, erros por porte, região e fase da epidemia, SHAP, regressão quantílica e comparação com o alerta oficial do InfoDengue |
 
 ## Como funciona
 
@@ -70,7 +71,7 @@ InfoDengue API ──► coleta (645 municípios, 2015–hoje) ──► valida�
                                                                 │
                           engenharia de atributos (só passado, sem vazamento)
                                                                 │
-          LightGBM por horizonte (1–4 semanas): previsão central + quantis 10% e 90%
+  LightGBM Poisson por horizonte (1–4 semanas): previsão central + quantis 10% e 90%
                                                                 │
           previsão atual com correção do atraso de notificação (nowcast)
                                                                 │
@@ -96,6 +97,8 @@ InfoDengue API ──► coleta (645 municípios, 2015–hoje) ──► valida�
   do InfoDengue.
 - **Um modelo global para todos os municípios**: cidades pequenas, com poucos casos, aprendem com
   o padrão das grandes.
+- **Função de perda de Poisson**, própria para contagens, com a semana atual como *offset*: errou de
+  2% a 6% menos que o mesmo modelo prevendo o logaritmo dos casos.
 - **Hiperparâmetros:** a busca com validação cruzada temporal mudou o erro em menos de 2%. O ganho
   vem dos atributos e do desenho do alvo.
 

@@ -57,7 +57,11 @@ def forecast(raw: pd.DataFrame, models: dict | None = None) -> pd.DataFrame:
     out = []
     for h, m in models.items():
         m = m if isinstance(m, dict) else {"central": m}
-        casos = np.expm1(m["central"].predict(last[FEATURES]) + atual).clip(0)
+        central = m["central"]
+        if getattr(central, "objective", None) == "poisson":  # offset na escala de log
+            casos = np.exp(central.predict(last[FEATURES], raw_score=True) + atual)
+        else:
+            casos = np.expm1(central.predict(last[FEATURES]) + atual).clip(0)
         inc = casos / pop * 1e5
         bloco = pd.DataFrame({
             "geocode": last["geocode"].values,
