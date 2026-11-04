@@ -21,6 +21,7 @@ O foco não é repetir os livros, e sim mostrar a teoria **aplicada às escolhas
 | 6 | [Valores SHAP](06_shap.md) | Explicação das previsões |
 | 7 | [Teste de Diebold-Mariano](07_diebold_mariano.md) | Se a melhora sobre o baseline é estatisticamente significativa |
 | 8 | [Métricas de avaliação](08_metricas.md) | MAE, WAPE, precisão e recall dos alertas |
+| 9 | [SARIMAX: modelos locais contra globais](09_sarimax.md) | Por que não um SARIMAX por município: comparação com dados |
 
 ## Notação
 

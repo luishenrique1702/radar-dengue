@@ -19,7 +19,7 @@ Avaliação em 2024–2026, período que o modelo nunca viu no treino e que incl
 | | |
 |---|---|
 | **Precisão** | Erro de 11,6 casos por município-semana com 1 semana de antecedência e 25,8 com 4 semanas, contra 13,4 e 36,6 do baseline. A diferença é estatisticamente significativa com 2 a 4 semanas (teste de Diebold-Mariano, p ≤ 0,015 na escala log); com 1 semana, o ganho é pequeno e não significativo (p ≈ 0,07). |
-| **Comparação** | Venceu cinco alternativas, incluindo a binomial negativa, referência estatística para contagens, que fica perto só com 3 e 4 semanas. |
+| **Comparação** | Venceu cinco alternativas, incluindo a binomial negativa, referência estatística para contagens, que fica perto só com 3 e 4 semanas. Um SARIMAX ajustado em cada uma das 82 cidades grandes perdeu até do baseline com 1 a 3 semanas: na epidemia de 2024, ele puxava a previsão de volta ao padrão sazonal. |
 | **Alerta oficial** | O alerta do InfoDengue é melhor para dizer quem continua em epidemia; o modelo antecipa cerca de metade das novas epidemias. Os dois juntos detectam mais, ao custo de mais alarmes falsos. |
 | **Incerteza** | Intervalos de 50%, 80% e 95% com calibração conformal: o de 95% cobre 94,6% dos valores reais. |
 | **Clima** | Controlando a época do ano, cada +1 °C se associa a só 4% a 7% mais casos, no curto prazo (associação observacional). A correlação forte vista nos dados brutos era sazonal. |
@@ -29,7 +29,7 @@ Avaliação em 2024–2026, período que o modelo nunca viu no treino e que incl
 ## O que o projeto demonstra
 
 - **Modelagem de séries temporais:** validação temporal sem vazamento, comparação com baselines e modelos estatísticos, ajuste de hiperparâmetros, análise de erros.
-- **Estatística aplicada:** regressão binomial negativa com efeitos fixos, teste de Diebold-Mariano, regressão quantílica, calibração conformal, valores SHAP.
+- **Estatística aplicada:** regressão binomial negativa com efeitos fixos, SARIMAX com sazonalidade de Fourier, teste de Diebold-Mariano, regressão quantílica, calibração conformal, valores SHAP.
 - **Engenharia de dados:** coleta via API, validação, banco analítico em DuckDB com consultas SQL (funções de janela, CTEs).
 - **Produção:** atualização semanal pelo GitHub Actions, registro de versões do modelo, monitoramento do desempenho com alerta, API em FastAPI, dashboard em Streamlit, Docker, 37 testes automatizados.
 
@@ -57,7 +57,7 @@ API do InfoDengue ──► coleta e validação (645 municípios, 2015–hoje)
 | [03 · Modelagem](notebooks/03_modelagem_e_avaliacao.ipynb) | Qual método prevê melhor, onde ele erra e quão confiáveis são os intervalos? Como se compara ao alerta oficial? |
 | [04 · SQL](notebooks/04_consultas_sql.ipynb) | As mesmas perguntas respondidas em SQL, num banco analítico. |
 
-A pasta [`docs/teoria`](docs/teoria) explica cada método usado (gradient boosting, perda de Poisson, binomial negativa, regressão quantílica e calibração conformal, SHAP, Diebold-Mariano), com a formulação, o motivo da escolha e as hipóteses que podem falhar neste projeto.
+A pasta [`docs/teoria`](docs/teoria) explica cada método usado (gradient boosting, perda de Poisson, binomial negativa, regressão quantílica e calibração conformal, SHAP, Diebold-Mariano, SARIMAX), com a formulação, o motivo da escolha e as hipóteses que podem falhar neste projeto.
 
 ## Decisões técnicas
 

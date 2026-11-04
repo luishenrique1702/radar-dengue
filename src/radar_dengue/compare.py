@@ -74,8 +74,6 @@ def main() -> None:
               "->", round(r["combinado"]["precisao"], 3))
 
 
-
-
 def alert_comparison(d: pd.DataFrame) -> dict:
     """Compara o modelo com o alerta oficial do InfoDengue.
 
@@ -121,6 +119,43 @@ def alert_comparison(d: pd.DataFrame) -> dict:
             "precisao_alertas_novos": float((extra & ev_te).sum() / max(extra.sum(), 1)),
         }
     return saida
+
+
+def sarimax_comparison(d: pd.DataFrame) -> pd.DataFrame:
+    """Compara SARIMAX, binomial negativa, LightGBM e baseline nas mesmas cidades e semanas.
+
+    Usa as previsões salvas por `python -m radar_dengue.sarimax` (cidades com mais de 100 mil
+    habitantes) e restringe os outros métodos exatamente às mesmas linhas.
+    """
+    arquivos = {"SARIMAX (sazonalidade de Fourier)": MODELS / "sarimax.parquet",
+                "SARIMAX com clima": MODELS / "sarimax_clima.parquet"}
+    sar = {nome: pd.read_parquet(arq) for nome, arq in arquivos.items() if arq.exists()}
+    if not sar:
+        return pd.DataFrame()
+    linhas = []
+    for h in HORIZONS:
+        tr, te = split(d, h)
+        cidades = set.intersection(*(set(s["geocode"]) for s in sar.values()))
+        te = te[te["geocode"].isin(cidades)].copy()
+        y = f"y_h{h}"
+        te["real"] = np.expm1(te[y])
+        te["LightGBM Poisson (modelo escolhido)"] = predict_central(fit_central(tr, h), te)
+        nb = sm.GLM(np.expm1(tr[y]).round(), sm.add_constant(tr[NB_FEATURES]),
+                    family=sm.families.NegativeBinomial(alpha=0.3),
+                    offset=tr["log_casos_lag0"].to_numpy()).fit()
+        te["Binomial negativa"] = nb.predict(sm.add_constant(te[NB_FEATURES]),
+                                             offset=te["log_casos_lag0"].to_numpy())
+        te["Repetir a semana atual (baseline)"] = np.expm1(te["log_casos_lag0"])
+        for nome, s in sar.items():
+            s = s[s["horizonte"] == h][["geocode", "data_iniSE", "previsto"]]
+            te = te.merge(s.rename(columns={"previsto": nome}), on=["geocode", "data_iniSE"],
+                          how="inner")
+        metodos = ["Repetir a semana atual (baseline)", *sar, "Binomial negativa",
+                   "LightGBM Poisson (modelo escolhido)"]
+        for m in metodos:
+            linhas.append({"horizonte": h, "método": m, "MAE": mae(te["real"], te[m]),
+                           "linhas": len(te), "cidades": te["geocode"].nunique()})
+    return pd.DataFrame(linhas)
 
 
 if __name__ == "__main__":

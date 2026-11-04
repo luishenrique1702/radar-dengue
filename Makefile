@@ -1,4 +1,4 @@
-.PHONY: install dados treino comparar previsao monitor sql pipeline app api testes lint
+.PHONY: sarimax install dados treino comparar previsao monitor sql pipeline app api testes lint
 
 install:
 	pip install -e ".[dev,analise,api]"
@@ -8,6 +8,9 @@ dados:
 
 treino:
 	python -m radar_dengue.model
+
+sarimax:
+	python -m radar_dengue.sarimax
 
 comparar:
 	python -m radar_dengue.compare
