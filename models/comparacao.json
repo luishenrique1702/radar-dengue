@@ -1,0 +1,26 @@
+{
+  "h1": {
+    "Repetir o mesmo período do ano anterior": 89.88980238017251,
+    "Regressão linear": 20.433235000558593,
+    "Repetir a semana atual (baseline)": 13.352920624522328,
+    "LightGBM (modelo escolhido)": 12.1664541457515
+  },
+  "h2": {
+    "Repetir o mesmo período do ano anterior": 91.28998845456044,
+    "Regressão linear": 29.503350241292086,
+    "Repetir a semana atual (baseline)": 21.445983836384627,
+    "LightGBM (modelo escolhido)": 18.090549479609397
+  },
+  "h3": {
+    "Repetir o mesmo período do ano anterior": 92.84856035437431,
+    "Regressão linear": 36.64276476911087,
+    "Repetir a semana atual (baseline)": 29.17345514950166,
+    "LightGBM (modelo escolhido)": 22.22126407342521
+  },
+  "h4": {
+    "Repetir o mesmo período do ano anterior": 94.49636941609504,
+    "Regressão linear": 42.39606670893231,
+    "Repetir a semana atual (baseline)": 36.6416262338966,
+    "LightGBM (modelo escolhido)": 26.39690232247169
+  }
+}

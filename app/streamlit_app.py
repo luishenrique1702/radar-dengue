@@ -41,10 +41,12 @@ def load():
     desempenho = pd.read_parquet(arq_mon) if arq_mon.exists() else pd.DataFrame()
     arq_reg = MODELS / "registro" / "versoes.csv"
     versoes = pd.read_csv(arq_reg) if arq_reg.exists() else pd.DataFrame()
-    return prev, hist, teste, geo, metricas, desempenho, versoes
+    arq_cmp = MODELS / "comparacao.json"
+    comparacao = json.loads(arq_cmp.read_text(encoding="utf-8")) if arq_cmp.exists() else {}
+    return prev, hist, teste, geo, metricas, desempenho, versoes, comparacao
 
 
-prev, hist, teste, geo, metricas, desempenho, versoes = load()
+prev, hist, teste, geo, metricas, desempenho, versoes, comparacao = load()
 semana_base = pd.Timestamp(prev["semana_base"].iloc[0])
 
 st.title("Radar Dengue · Estado de São Paulo")
@@ -150,27 +152,48 @@ with aba_cidade:
 
 # ---------------------------------------------------------------- Modelo
 with aba_modelo:
-    st.markdown(
-        "O modelo (LightGBM) foi treinado com dados de **2015 a 2023** e avaliado em "
-        "**2024 a 2026**, período que inclui a maior epidemia de dengue já registrada no estado. "
-        "A comparação é com um *baseline* ingênuo: repetir os casos da semana atual."
+    st.success(
+        "**Conclusão:** o LightGBM prevê os casos de dengue melhor que todos os métodos "
+        "alternativos testados, em todos os horizontes. Com 4 semanas de antecedência, erra 28% "
+        "menos que repetir a semana atual. O ponto fraco é o início das epidemias: o modelo "
+        "antecipa parte da subida, mas não toda."
     )
-    linhas = []
-    for k, v in metricas.items():
-        for tipo in ["modelo", "baseline"]:
-            linhas.append({"Horizonte": int(k[1:]), "Tipo": tipo.capitalize(),
-                           "Erro médio (casos)": v[tipo]["mae_casos"]})
-    m = pd.DataFrame(linhas)
-    fig = px.bar(m, x="Horizonte", y="Erro médio (casos)", color="Tipo", barmode="group",
-                 color_discrete_map={"Modelo": COR_PREV, "Baseline": COR_BASE})
-    fig.update_layout(height=380, xaxis_title="Semanas à frente",
-                      legend=dict(orientation="h", y=1.1), margin=dict(l=0, r=0, t=30, b=0))
-    fig.update_traces(marker_line_width=0)
-    fig.update_layout(bargap=0.35, bargroupgap=0.04)
-    st.plotly_chart(fig, width="stretch")
+    st.markdown(
+        "O modelo foi treinado com dados de **2015 a 2023** e avaliado em **2024 a 2026**, "
+        "período que ele nunca viu e que inclui a maior epidemia de dengue já registrada no "
+        "estado. Ele foi comparado com três alternativas:"
+    )
+    if comparacao:
+        linhas = [{"Horizonte": int(k[1:]), "Método": metodo, "Erro médio (casos)": v}
+                  for k, d in comparacao.items() for metodo, v in d.items()]
+        cmp = pd.DataFrame(linhas)
+        cores = {"Repetir o mesmo período do ano anterior": "#c3c2b7",
+                 "Regressão linear": "#1baf7a",
+                 "Repetir a semana atual (baseline)": COR_BASE,
+                 "LightGBM (modelo escolhido)": COR_PREV}
+        fig = px.bar(cmp, x="Horizonte", y="Erro médio (casos)", color="Método",
+                     barmode="group", color_discrete_map=cores,
+                     category_orders={"Método": list(cores)})
+        fig.update_layout(height=420, xaxis_title="Semanas à frente",
+                          legend=dict(orientation="h", y=1.15, title=None),
+                          margin=dict(l=0, r=0, t=40, b=0), bargap=0.25, bargroupgap=0.04)
+        fig.update_traces(marker_line_width=0)
+        st.plotly_chart(fig, width="stretch")
+        tabela = cmp.pivot(index="Método", columns="Horizonte", values="Erro médio (casos)")
+        tabela = tabela.loc[list(cores)].rename(columns=lambda c: f"{c} sem.")
+        st.dataframe(tabela.round(1), width="stretch")
+        st.caption(
+            "Erro médio absoluto, em casos por município por semana; menor é melhor. "
+            "Repetir o ano anterior falha porque os anos são muito diferentes entre si (2024 teve "
+            "5 vezes mais casos que 2023). A regressão linear, com os mesmos atributos do "
+            "LightGBM, perde até do baseline: as relações entre os atributos e os casos não são "
+            "lineares. A análise completa, com testes de significância, está nos notebooks do "
+            "projeto."
+        )
 
+    st.subheader("Previsão x realidade no período de teste")
     nomes_t = sorted(teste["municipio"].unique())
-    cidade_t = st.selectbox("Ver previsão x realidade no período de teste", nomes_t,
+    cidade_t = st.selectbox("Município", nomes_t, key="cidade_teste",
                             index=nomes_t.index("São Paulo"))
     h_t = st.radio("Horizonte", [1, 2, 3, 4], index=1, horizontal=True)
     t = teste[(teste["municipio"] == cidade_t) & (teste["horizonte"] == h_t)]
