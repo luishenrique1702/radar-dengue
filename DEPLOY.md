@@ -31,11 +31,15 @@ Se algo falhar, ou o modelo piorar, o GitHub envia um e-mail.
 4. Em **Advanced settings**, escolha **Python 3.12**.
 5. Clique em **Deploy**. Em 2 a 5 minutos o dashboard estará no ar.
 
+**Repositório privado:** o Streamlit consegue publicar a partir dele, mas, ao conectar o GitHub,
+autorize o acesso a repositórios privados. O app herda a privacidade do repositório: só você vê, e
+pode convidar pessoas por e-mail no botão **Share**. A conta gratuita permite **um app privado por
+vez**. Quando os repositórios ficarem públicos, os apps podem ficar públicos também, sem limite.
+
 A cada segunda-feira, quando a atualização salva novas previsões no GitHub, o Streamlit atualiza o
 dashboard sozinho.
 
 ## 4. Acabamento
 
-- Troque *link do Streamlit Cloud aqui* no README pelo endereço do dashboard.
-- Troque *SEU NOME* e os links do LinkedIn e do Lattes.
+- Coloque o link do dashboard no topo do README, logo abaixo do título.
 - Fixe o repositório no seu perfil do GitHub (**Customize your pins**).

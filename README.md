@@ -2,8 +2,6 @@
 
 **Previsão semanal de casos de dengue para os 645 municípios do estado de São Paulo, de 1 a 4 semanas à frente, com mapa de risco, intervalos de previsão e monitoramento contínuo do modelo.**
 
-> 🔗 **Dashboard ao vivo:** _link do Streamlit Cloud aqui_
-
 ![Mapa de risco](reports/figures/dashboard_mapa.png)
 
 ---
@@ -185,4 +183,4 @@ com árvores de decisão explicáveis.
 
 ## Autor
 
-**SEU NOME** · Doutorando(a) · [LinkedIn](#) · [Lattes](#)
+**Luis Henrique Toledo** · Doutorando no IME-USP · Monitor no Insper · [LinkedIn](https://www.linkedin.com/in/luis-henrique-toledo-057b49161/) · [Lattes](https://buscatextual.cnpq.br/buscatextual/visualizacv.do?id=K1107936U3)
