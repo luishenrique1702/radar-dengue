@@ -1,4 +1,4 @@
-# Radar Dengue SP
+# 🦟 Radar Dengue SP
 
 Previsão semanal de casos de dengue para os 645 municípios de São Paulo, de 1 a 4 semanas à frente, em produção e atualizada automaticamente.
 
