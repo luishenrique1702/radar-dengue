@@ -12,33 +12,33 @@ relações não lineares e interações entre atributos, como "crescimento rápi
 
 ## Formulação
 
-O modelo é uma soma de $M$ árvores:
+O modelo é uma soma de $`M`$ árvores:
 
-$$
+```math
 F_M(x) = F_0 + \sum_{m=1}^{M} \nu \, f_m(x)
-$$
+```
 
-em que $f_m$ é a $m$-ésima árvore e $\nu$ é a taxa de aprendizado (0,03 neste projeto), que encolhe a
+em que $`f_m`$ é a $`m`$-ésima árvore e $`\nu`$ é a taxa de aprendizado (0,03 neste projeto), que encolhe a
 contribuição de cada árvore para evitar sobreajuste.
 
-O objetivo é minimizar uma **função de perda** $L(y, F(x))$ somada sobre os dados. A cada passo, a
+O objetivo é minimizar uma **função de perda** $`L(y, F(x))`$ somada sobre os dados. A cada passo, a
 nova árvore aproxima a direção de maior descida da perda, o **gradiente negativo**:
 
-$$
+```math
 g_{j} = -\left.\frac{\partial L(y_j, F)}{\partial F}\right|_{F = F_{m-1}(x_j)}
-$$
+```
 
-Para a perda quadrática, $L = \tfrac12 (y - F)^2$, o gradiente negativo é o resíduo $y - F$: cada
+Para a perda quadrática, $`L = \tfrac12 (y - F)^2`$, o gradiente negativo é o resíduo $`y - F`$: cada
 árvore literalmente "ajusta os resíduos" das anteriores. Para outras perdas, como a de Poisson
 (arquivo 3), o gradiente muda, mas a lógica é a mesma. O LightGBM também usa a segunda derivada
-(*hessiana*) $h_j = \partial^2 L / \partial F^2$, num passo do tipo Newton, para escolher os valores
+(*hessiana*) $`h_j = \partial^2 L / \partial F^2`$, num passo do tipo Newton, para escolher os valores
 das folhas:
 
-$$
+```math
 w^*_{\text{folha}} = -\frac{\sum_{j \in \text{folha}} g_j}{\sum_{j \in \text{folha}} h_j + \lambda}
-$$
+```
 
-em que $\lambda$ é uma penalidade de regularização (`reg_lambda = 1`).
+em que $`\lambda`$ é uma penalidade de regularização (`reg_lambda = 1`).
 
 ## O que o LightGBM tem de particular
 

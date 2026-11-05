@@ -8,34 +8,34 @@ previsão média. É como repartir uma conta entre os participantes de forma jus
 
 ## Formulação
 
-A ideia vem dos **valores de Shapley**, da teoria dos jogos cooperativos. Para um modelo $f$, um ponto
-$x$ e o conjunto de atributos $\mathcal{F}$, a contribuição do atributo $j$ é a média da sua
+A ideia vem dos **valores de Shapley**, da teoria dos jogos cooperativos. Para um modelo $`f`$, um ponto
+$`x`$ e o conjunto de atributos $`\mathcal{F}`$, a contribuição do atributo $`j`$ é a média da sua
 contribuição marginal sobre todas as ordens possíveis de "entrada" dos atributos:
 
-$$
+```math
 \phi_j(x) = \sum_{S \subseteq \mathcal{F} \setminus \{j\}}
 \frac{|S|!\,(|\mathcal{F}| - |S| - 1)!}{|\mathcal{F}|!}
 \Big[ v(S \cup \{j\}) - v(S) \Big]
-$$
+```
 
-em que $v(S)$ é a previsão esperada do modelo quando só os atributos de $S$ são conhecidos. As
+em que $`v(S)`$ é a previsão esperada do modelo quando só os atributos de $`S`$ são conhecidos. As
 contribuições somam a previsão:
 
-$$
+```math
 f(x) = \phi_0 + \sum_{j} \phi_j(x)
-$$
+```
 
-com $\phi_0$ igual à previsão média. Os valores de Shapley são a única forma de repartição que
+com $`\phi_0`$ igual à previsão média. Os valores de Shapley são a única forma de repartição que
 satisfaz um conjunto de propriedades de justiça (eficiência, simetria, atributo nulo e
 aditividade).
 
-Em geral, calcular $\phi_j$ exige um número exponencial de combinações. Para árvores, o algoritmo
+Em geral, calcular $`\phi_j`$ exige um número exponencial de combinações. Para árvores, o algoritmo
 **TreeSHAP** calcula os valores exatos em tempo polinomial, aproveitando a estrutura das árvores. O
 LightGBM o implementa diretamente (`predict(..., pred_contrib=True)`).
 
 ## Por que foi usado aqui
 
-- **Importância global:** a média de $|\phi_j|$ sobre muitas previsões mostra o que o modelo mais usa:
+- **Importância global:** a média de $`|\phi_j|`$ sobre muitas previsões mostra o que o modelo mais usa:
   o nível recente de casos, a época do ano, a tendência do estado, o porte do município. O clima
   aparece por último entre os dez mais importantes, coerente com a análise inferencial.
 - **Explicação individual:** por que o modelo previu cerca de 3.600 casos para Campinas em março de

@@ -27,10 +27,10 @@ O foco não é repetir os livros, e sim mostrar a teoria **aplicada às escolhas
 
 | Símbolo | Significado |
 |---|---|
-| $i$ | município |
-| $t$ | semana (a semana da previsão) |
-| $h$ | horizonte: quantas semanas à frente (1 a 4) |
-| $y_{i,t}$ | casos notificados no município $i$ na semana $t$ |
-| $x_{i,t}$ | vetor de atributos disponíveis na semana $t$ |
-| $N_i$ | população do município |
-| $\hat{y}_{i,t+h}$ | previsão feita em $t$ para a semana $t+h$ |
+| $`i`$ | município |
+| $`t`$ | semana (a semana da previsão) |
+| $`h`$ | horizonte: quantas semanas à frente (1 a 4) |
+| $`y_{i,t}`$ | casos notificados no município $`i`$ na semana $`t`$ |
+| $`x_{i,t}`$ | vetor de atributos disponíveis na semana $`t`$ |
+| $`N_i`$ | população do município |
+| $`\hat{y}_{i,t+h}`$ | previsão feita em $`t`$ para a semana $`t+h`$ |

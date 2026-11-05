@@ -14,46 +14,46 @@ modelo não precisa aprender o nível da epidemia, só **quanto ela vai mudar**.
 
 ### O modelo de Poisson tradicional (um GLM)
 
-$$
+```math
 y_{i,t+h} \sim \text{Poisson}(\mu_{i,t+h}), \qquad
 \log \mu_{i,t+h} = \underbrace{\log(1 + y_{i,t})}_{\text{offset}} + \beta^\top x_{i,t}
-$$
+```
 
 ### O LightGBM com perda de Poisson
 
-A mesma hipótese sobre os dados, mas a parte linear $\beta^\top x$ é trocada por uma soma de árvores
-$F(x)$:
+A mesma hipótese sobre os dados, mas a parte linear $`\beta^\top x`$ é trocada por uma soma de árvores
+$`F(x)`$:
 
-$$
+```math
 \log \mu_{i,t+h} = \log(1 + y_{i,t}) + F(x_{i,t})
-$$
+```
 
 O modelo minimiza a **deviance de Poisson** (o negativo da log-verossimilhança, sem as constantes):
 
-$$
+```math
 L(y, \mu) = \mu - y \log \mu
-$$
+```
 
-Na escala do preditor $\eta = \log \mu$, o gradiente e a hessiana são
+Na escala do preditor $`\eta = \log \mu`$, o gradiente e a hessiana são
 
-$$
+```math
 \frac{\partial L}{\partial \eta} = \mu - y, \qquad \frac{\partial^2 L}{\partial \eta^2} = \mu ,
-$$
+```
 
 ou seja, cada árvore corrige a diferença entre o previsto e o observado, como na perda quadrática,
-mas com pesos proporcionais a $\mu$. No LightGBM, o offset entra como `init_score`.
+mas com pesos proporcionais a $`\mu`$. No LightGBM, o offset entra como `init_score`.
 
 ### Por que a Poisson serve mesmo com sobredispersão
 
 Os casos de dengue têm **sobredispersão**: a variância é dezenas de vezes maior que a média, e a
-Poisson supõe $\text{Var}(y) = \mu$. Ainda assim, a perda de Poisson estima a **média** de forma
+Poisson supõe $`\text{Var}(y) = \mu`$. Ainda assim, a perda de Poisson estima a **média** de forma
 consistente. As equações de estimação
 
-$$
+```math
 \sum_j (y_j - \mu_j)\, \frac{\partial \eta_j}{\partial \theta} = 0
-$$
+```
 
-só exigem que $E[y \mid x] = \mu(x)$ esteja certa; não dependem da variância. É o resultado clássico
+só exigem que $`E[y \mid x] = \mu(x)`$ esteja certa; não dependem da variância. É o resultado clássico
 da **quase-verossimilhança** e da **pseudo-máxima verossimilhança de Poisson**. A sobredispersão afeta
 a **incerteza** (erros-padrão e intervalos), que o projeto trata separadamente, com regressão
 quantílica calibrada (arquivo 5).
@@ -63,12 +63,12 @@ quantílica calibrada (arquivo 5).
 - **Contagens com muitos zeros:** 60% das semanas das cidades pequenas têm zero casos. Prever o
   logaritmo e voltar para a escala original introduz viés (a média do log não é o log da média); a
   Poisson modela a média diretamente.
-- **Resultado:** errou de 0,4% a 4,8% menos que o mesmo LightGBM prevendo $\log(1+y)$ com perda
+- **Resultado:** errou de 0,4% a 4,8% menos que o mesmo LightGBM prevendo $`\log(1+y)`$ com perda
   quadrática. A Tweedie, que acomoda variância maior, deu resultado praticamente igual.
 
 ## Hipóteses e riscos neste projeto
 
-- **O offset usa $\log(1+y)$, não $\log y$**, para evitar $\log 0$ nas semanas sem casos. É uma
+- **O offset usa $`\log(1+y)`$, não $`\log y`$**, para evitar $`\log 0`$ nas semanas sem casos. É uma
   aproximação; o modelo aprende a compensá-la, porque a mesma transformação é usada no treino e na
   previsão.
 - **A média condicional precisa estar bem especificada**, o que depende dos atributos. Se faltar uma

@@ -9,65 +9,65 @@ história inteira.
 
 ### Erro médio absoluto (MAE)
 
-$$
+```math
 \text{MAE} = \frac{1}{n} \sum_{i,t} \big| y_{i,t+h} - \hat y_{i,t+h} \big|
-$$
+```
 
 Em casos por município-semana. Fácil de interpretar, mas dominado pelas cidades grandes: errar 500
 casos na capital pesa mais que errar 5 em cada uma de 50 cidades pequenas.
 
 ### Erro absoluto ponderado (WAPE)
 
-$$
+```math
 \text{WAPE} = \frac{\sum_{i,t} |y_{i,t+h} - \hat y_{i,t+h}|}{\sum_{i,t} y_{i,t+h}}
-$$
+```
 
 O erro total como fração dos casos totais. Diferente do erro percentual médio (MAPE), não se torna
-infinito quando $y = 0$, o que é essencial aqui, com 60% de semanas sem casos nas cidades pequenas.
+infinito quando $`y = 0`$, o que é essencial aqui, com 60% de semanas sem casos nas cidades pequenas.
 
 ### Erro em escala log (RMSE log)
 
-$$
+```math
 \text{RMSE}_{\log} = \sqrt{ \frac{1}{n} \sum_{i,t} \big( \log(1 + y_{i,t+h}) - \log(1 + \hat y_{i,t+h}) \big)^2 }
-$$
+```
 
 Mede o erro **relativo** e dá peso parecido a cidades de portes diferentes.
 
 ### Precisão e recall dos alertas
 
 O alerta é tratado como uma classificação: o município estará em risco alto (ou em nível epidêmico
-do InfoDengue) daqui a $h$ semanas?
+do InfoDengue) daqui a $`h`$ semanas?
 
-$$
+```math
 \text{precisão} = \frac{VP}{VP + FP}, \qquad \text{recall} = \frac{VP}{VP + FN}
-$$
+```
 
-em que $VP$ são os alertas que se confirmaram, $FP$ os alarmes falsos e $FN$ os casos não
+em que $`VP`$ são os alertas que se confirmaram, $`FP`$ os alarmes falsos e $`FN`$ os casos não
 detectados. A precisão responde "quando o modelo alerta, quanto acerta?"; o recall, "das situações
 de risco, quantas ele detectou?".
 
 ### Cobertura dos intervalos
 
-$$
+```math
 \text{cobertura} = \frac{1}{n} \sum_{i,t} \mathbb{1}\{ y_{i,t+h} \in [\hat q_{\text{inf}}, \hat q_{\text{sup}}] \}
-$$
+```
 
 Deve ficar perto do nível nominal (50%, 80% ou 95%).
 
 ### WIS (*weighted interval score*)
 
 A cobertura sozinha premia intervalos enormes. O **interval score** de um intervalo central de nível
-$1-\alpha$, com limites $l$ e $u$, pune a largura e cada valor que fica fora:
+$`1-\alpha`$, com limites $`l`$ e $`u`$, pune a largura e cada valor que fica fora:
 
-$$
+```math
 IS_\alpha(l, u; y) = (u - l) + \frac{2}{\alpha}(l - y)\,\mathbb{1}\{y < l\} + \frac{2}{\alpha}(y - u)\,\mathbb{1}\{y > u\}
-$$
+```
 
-O WIS combina a mediana $m$ e os $K$ intervalos (aqui, 50%, 80% e 95%):
+O WIS combina a mediana $`m`$ e os $`K`$ intervalos (aqui, 50%, 80% e 95%):
 
-$$
+```math
 WIS = \frac{1}{K + 1/2}\left( \tfrac{1}{2}|y - m| + \sum_{k=1}^{K} \frac{\alpha_k}{2}\, IS_{\alpha_k} \right)
-$$
+```
 
 É uma regra de pontuação própria, aproxima o CRPS e está na mesma unidade dos casos: com só a mediana,
 vira metade do erro absoluto. Valores menores são melhores. É a métrica dos centros de previsão do CDC

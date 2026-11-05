@@ -13,28 +13,28 @@ Ela aparece duas vezes no projeto:
 
 ### O modelo
 
-$$
+```math
 y_{i,t} \mid \mu_{i,t} \sim \text{BinNeg}(\mu_{i,t}, \alpha), \qquad
 E[y_{i,t}] = \mu_{i,t}, \qquad \text{Var}(y_{i,t}) = \mu_{i,t} + \alpha \mu_{i,t}^2
-$$
+```
 
-Quando $\alpha \to 0$, volta a ser Poisson. Uma forma de entender: a binomial negativa é uma Poisson
+Quando $`\alpha \to 0`$, volta a ser Poisson. Uma forma de entender: a binomial negativa é uma Poisson
 cuja média tem uma variação extra, com distribuição gama (uma mistura gama-Poisson).
 
 ### Na análise inferencial (efeito da temperatura)
 
-$$
+```math
 \log \mu_{i,t} = \log N_i + \beta \, T_{i,t-L} + \gamma \, U_{i,t-L}
 + s(\text{semana}) + \delta_{\text{ano}} + \phi_i
-$$
+```
 
-- $\log N_i$: offset da população; os coeficientes passam a ser sobre a **incidência**.
-- $T_{i,t-L}$: temperatura média das 4 semanas que terminam $L$ semanas antes.
-- $s(\text{semana})$: seno e cosseno da semana do ano (sazonalidade).
-- $\delta_{\text{ano}}$: efeito fixo de ano (absorve diferenças entre anos, como sorotipo e imunidade).
-- $\phi_i$: efeito fixo de município (diferenças permanentes entre cidades).
+- $`\log N_i`$: offset da população; os coeficientes passam a ser sobre a **incidência**.
+- $`T_{i,t-L}`$: temperatura média das 4 semanas que terminam $`L`$ semanas antes.
+- $`s(\text{semana})`$: seno e cosseno da semana do ano (sazonalidade).
+- $`\delta_{\text{ano}}`$: efeito fixo de ano (absorve diferenças entre anos, como sorotipo e imunidade).
+- $`\phi_i`$: efeito fixo de município (diferenças permanentes entre cidades).
 
-O coeficiente $e^{\beta}$ é a **razão de taxas de incidência (IRR)**: $e^{\beta} = 1{,}06$ significa
+O coeficiente $`e^{\beta}`$ é a **razão de taxas de incidência (IRR)**: $`e^{\beta} = 1{,}06`$ significa
 6% mais casos por habitante para cada grau a mais, mantidos os outros termos.
 
 ### Erros-padrão robustos agrupados
@@ -42,21 +42,21 @@ O coeficiente $e^{\beta}$ é a **razão de taxas de incidência (IRR)**: $e^{\be
 As semanas de um mesmo município são correlacionadas, então os erros-padrão usuais seriam pequenos
 demais. O projeto usa o estimador **sanduíche agrupado** por município:
 
-$$
+```math
 \widehat{\text{Var}}(\hat\beta) = A^{-1} \left( \sum_{g} s_g s_g^\top \right) A^{-1}
-$$
+```
 
-em que $A$ é a matriz de informação e $s_g$ é a soma dos escores do grupo $g$. Como robustez, o
+em que $`A`$ é a matriz de informação e $`s_g`$ é a soma dos escores do grupo $`g`$. Como robustez, o
 notebook também agrupa em duas dimensões (município e semana), para tratar choques que atingem todas
 as cidades na mesma semana.
 
 ### Na comparação de previsão
 
-$$
+```math
 \log \mu_{i,t+h} = \log(1 + y_{i,t}) + \beta^\top z_{i,t}
-$$
+```
 
-com $z_{i,t}$ formado só por **variações** (diferenças entre semanas, crescimento, Rt, sazonalidade),
+com $`z_{i,t}`$ formado só por **variações** (diferenças entre semanas, crescimento, Rt, sazonalidade),
 e não por níveis.
 
 ## Por que foi usado aqui
@@ -76,7 +76,7 @@ e não por níveis.
   lida com cautela.
 - **A especificação da sazonalidade** (seno e cosseno) não captura perfeitamente o formato da
   estação, o que pode explicar os IRR levemente abaixo de 1 nas defasagens longas.
-- **Na previsão, atributos em nível fazem o modelo explodir.** Com $\log y$ das semanas anteriores
+- **Na previsão, atributos em nível fazem o modelo explodir.** Com $`\log y`$ das semanas anteriores
   como atributos, os coeficientes multiplicam valores muito grandes nas cidades grandes durante a
   epidemia, e a previsão para a capital passou de 500 mil casos por semana. Atributos em variação,
   que não dependem do tamanho da cidade, resolveram.

@@ -15,40 +15,40 @@ município?** E a resposta é empírica: o SARIMAX foi incluído na comparação
 
 ### ARIMA
 
-Para a série $z_t = \log(1 + y_t)$ de um município, um ARIMA$(p, d, q)$ é
+Para a série $`z_t = \log(1 + y_t)`$ de um município, um ARIMA$`(p, d, q)`$ é
 
-$$
+```math
 \phi(B)\,(1 - B)^d \, z_t = c + \theta(B)\, \varepsilon_t, \qquad \varepsilon_t \sim N(0, \sigma^2)
-$$
+```
 
-em que $B$ é o operador de defasagem ($B z_t = z_{t-1}$), $\phi(B) = 1 - \phi_1 B - \dots - \phi_p B^p$
-é a parte autorregressiva e $\theta(B) = 1 + \theta_1 B + \dots + \theta_q B^q$ a de médias móveis.
+em que $`B`$ é o operador de defasagem ($`B z_t = z_{t-1}`$), $`\phi(B) = 1 - \phi_1 B - \dots - \phi_p B^p`$
+é a parte autorregressiva e $`\theta(B) = 1 + \theta_1 B + \dots + \theta_q B^q`$ a de médias móveis.
 
 O baseline do projeto, "repetir a semana atual", é o caso mais simples: o **passeio aleatório**,
-ARIMA(0, 1, 0), $z_t = z_{t-1} + \varepsilon_t$.
+ARIMA(0, 1, 0), $`z_t = z_{t-1} + \varepsilon_t`$.
 
 ### Sazonalidade: SARIMA ou termos de Fourier
 
-O SARIMA clássico acrescenta polinômios sazonais em $B^{s}$, com $s = 52$ para dados semanais. Com um
+O SARIMA clássico acrescenta polinômios sazonais em $`B^{s}`$, com $`s = 52`$ para dados semanais. Com um
 período tão longo, a estimação fica lenta e instável. A alternativa usual é a **regressão harmônica
 dinâmica**: a sazonalidade entra como regressores de Fourier e o ARIMA modela o restante:
 
-$$
+```math
 z_t = \sum_{k=1}^{K} \Big[ a_k \sin\!\Big(\frac{2\pi k t}{52{,}18}\Big) + b_k \cos\!\Big(\frac{2\pi k t}{52{,}18}\Big) \Big]
 + \beta^\top x_t + \eta_t, \qquad \eta_t \sim \text{ARIMA}(p, d, q)
-$$
+```
 
-com $K = 3$ harmônicos. Na versão com clima, $x_t$ contém a temperatura e a umidade médias das 4
+com $`K = 3`$ harmônicos. Na versão com clima, $`x_t`$ contém a temperatura e a umidade médias das 4
 semanas que terminam 4 semanas antes, valores que **já são conhecidos** no momento de qualquer previsão
 de até 4 semanas (sem isso, seria preciso prever o clima).
 
 ### Ajuste e previsão
 
-- Para cada município com mais de 100 mil habitantes, a ordem $(p, d, q)$ é escolhida pelo menor
+- Para cada município com mais de 100 mil habitantes, a ordem $`(p, d, q)`$ é escolhida pelo menor
   **AIC** entre algumas ordens comuns, com dados até 2023.
 - No teste, os parâmetros ficam fixos, e o **filtro de Kalman** incorpora cada semana nova antes de
   prever de 1 a 4 semanas à frente, a mesma regra dos outros métodos.
-- A previsão em casos é $\exp(\hat z_{t+h}) - 1$. Como $\hat z$ é a média do log, isso é a **mediana**
+- A previsão em casos é $`\exp(\hat z_{t+h}) - 1`$. Como $`\hat z`$ é a média do log, isso é a **mediana**
   na escala de casos, que é a previsão ótima para o erro absoluto (MAE).
 
 ## Modelos locais e globais
