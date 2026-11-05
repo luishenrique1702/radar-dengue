@@ -24,6 +24,8 @@ def mae(real, prev) -> float:
 
 # Binomial negativa com atributos invariantes à escala (variações, não níveis). Com níveis de
 # log(casos) como atributos, ela "explodia" nas cidades grandes durante a epidemia de 2024.
+# log_media4 é a média exata das defasagens 0 a 3: fica fora da regressão linear (colinear)
+LIN_FEATURES = [f for f in FEATURES if f != "log_media4"]
 NB_FEATURES = ["d1", "dm4", "dm8", "crescimento_4s", "sem_sin", "sem_cos", "cresc_estado_4s",
                "log_rt", "log_inc", "tempmed_media4", "umidmed_media4"]
 
@@ -47,7 +49,7 @@ def main() -> None:
         y = f"y_h{h}"
         real = np.expm1(te[y]).to_numpy()
         atual = te["log_casos_lag0"].to_numpy()
-        lin = sm.OLS(tr[y] - tr["log_casos_lag0"], sm.add_constant(tr[FEATURES].fillna(0))).fit()
+        lin = sm.OLS(tr[y] - tr["log_casos_lag0"], sm.add_constant(tr[LIN_FEATURES])).fit()
         nb = sm.GLM(np.expm1(tr[y]).round(), sm.add_constant(tr[NB_FEATURES]),
                     family=sm.families.NegativeBinomial(alpha=0.3),
                     offset=tr["log_casos_lag0"].to_numpy()).fit()
@@ -55,7 +57,7 @@ def main() -> None:
         resultado[f"h{h}"] = {
             "Repetir o mesmo período do ano anterior": mae(real, np.expm1(te["log_casos_lag52"])),
             "Regressão linear": mae(
-                real, np.expm1(lin.predict(sm.add_constant(te[FEATURES].fillna(0))) + atual)),
+                real, np.expm1(lin.predict(sm.add_constant(te[LIN_FEATURES])) + atual)),
             "Repetir a semana atual (baseline)": mae(real, np.expm1(atual)),
             "Binomial negativa": mae(
                 real, nb.predict(sm.add_constant(te[NB_FEATURES]), offset=atual)),

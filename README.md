@@ -36,17 +36,19 @@ Avaliação em 2024–2026, período que o modelo nunca viu no treino e que incl
 
 ## Como funciona
 
-```
-API do InfoDengue ──► coleta e validação (645 municípios, 2015–hoje)
-                              │
-               atributos: casos recentes, tendência, Rt, clima, sazonalidade
-                              │
-        LightGBM Poisson por horizonte + regressão quantílica calibrada
-                              │
-     ┌────────────────────────┼────────────────────────┐
-  dashboard                  API                 banco DuckDB (SQL)
-                              │
-   GitHub Actions: retreina, prevê e monitora toda segunda-feira
+```mermaid
+%%{init: {"flowchart": {"wrappingWidth": 320}}}%%
+flowchart TD
+    A["API do InfoDengue"] --> B["Coleta e validação<br/>645 municípios, 2015 até hoje"]
+    B --> C["Atributos<br/>casos recentes, tendência, Rt, clima, sazonalidade"]
+    C --> D["LightGBM Poisson<br/>um modelo por horizonte, de 1 a 4 semanas"]
+    C --> E["Regressão quantílica<br/>calibração conformal por porte"]
+    D --> F["Previsão com intervalos de 50%, 80% e 95%"]
+    E --> F
+    F --> G["Dashboard<br/>Streamlit"]
+    F --> H["API<br/>FastAPI"]
+    F --> I["Banco analítico<br/>DuckDB e SQL"]
+    J["GitHub Actions, toda segunda-feira"] -.->|"coleta, retreina, prevê e monitora"| B
 ```
 
 ## Análises
