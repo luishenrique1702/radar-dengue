@@ -51,28 +51,39 @@ $$
 
 sem nenhuma hipótese sobre a distribuição dos dados.
 
+### Calibração por porte (*Mondrian conformal*)
+
+Com um único $Q$, a garantia vale na média de todos os municípios. Como as cidades pequenas são a
+maioria das linhas, são elas que definem $Q$, e as grandes podem ficar com intervalos estreitos demais.
+A versão **Mondrian** (Vovk et al., 2005) repete o passo 3 separadamente em cada grupo $g$ (aqui, o
+porte do município: até 20 mil, 20 a 100 mil, 100 a 500 mil e mais de 500 mil habitantes) e usa o
+$Q_g$ do grupo de cada município. A garantia passa a valer **dentro de cada grupo**, ao custo de menos
+observações de calibração por grupo.
+
 ## Por que foi usado aqui
 
 - Sem calibração, o intervalo de 95% cobriu só cerca de 90% dos valores reais no teste (2024–2026),
   porque 2024 foi mais extremo que o histórico.
 - Com calibração, cobriu 94,6% (com 4 semanas de antecedência). Os de 50% e 80% ficaram em cerca de
-  53% e 78%.
+  54% e 78%.
+- Com um $Q$ único, o intervalo de 80% cobria só 66% nas cidades com mais de 500 mil habitantes, e o
+  de 95%, 91%. Calibrando por porte, passam a 77% e 96%, sem mudar a cobertura geral. É a calibração
+  usada em produção.
 
 ## Hipóteses e riscos neste projeto
 
 - **Permutabilidade não vale exatamente.** Séries temporais têm dependência, e 2024 foi diferente de
   2023, o ano de calibração. A garantia teórica não se aplica literalmente; a cobertura observada,
   porém, ficou perto do nominal.
-- **Cobertura média, não por grupo.** A garantia vale na média. Por porte, a cobertura é melhor nas
-  cidades pequenas e pior nas grandes, cujas epidemias recentes foram mais extremas. Uma melhoria
-  seria calibrar separadamente por porte (conformal condicional).
+- **Poucos municípios grandes.** Só 9 municípios têm mais de 500 mil habitantes; o $Q$ desse grupo vem
+  de cerca de 480 semanas-município de 2023 e é mais incerto que o dos outros.
 - **Calibração na escala log:** o ajuste $Q$ é somado em $\log(1+y)$, o que equivale a um ajuste
   multiplicativo na escala de casos. Isso faz sentido para contagens, cujo erro cresce com o nível.
 
 ## No código
 
-- `src/radar_dengue/intervals.py`: `fit_quantiles`, `conformal_adjustment`, `predict_bounds` e
-  `evaluate`.
+- `src/radar_dengue/intervals.py`: `fit_quantiles`, `conformal_adjustment`, `adjustment_by_size`,
+  `predict_bounds` e `evaluate`.
 - `models/intervalos.json`: ajustes e coberturas por horizonte e nível.
 
 ## Referências
@@ -80,6 +91,7 @@ sem nenhuma hipótese sobre a distribuição dos dados.
 - Koenker, R. e Bassett, G. "Regression quantiles", *Econometrica*, 1978.
 - Koenker, R. *Quantile Regression*, Cambridge University Press, 2005.
 - Romano, Y., Patterson, E. e Candès, E. "Conformalized quantile regression", *NeurIPS*, 2019.
+- Vovk, V., Gammerman, A. e Shafer, G. *Algorithmic Learning in a Random World*, Springer, 2005.
 - Vovk, V., Gammerman, A. e Shafer, G. *Algorithmic Learning in a Random World*, Springer, 2005.
 - Angelopoulos, A. N. e Bates, S. "A gentle introduction to conformal prediction and distribution-free
   uncertainty quantification", *arXiv:2107.07511*, 2021.

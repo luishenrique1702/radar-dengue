@@ -1,0 +1,106 @@
+{
+  "atual": {
+    "h1": {
+      "mae": 4.159,
+      "mae_inicio": 7.0905,
+      "vies_inicio": -6.9349,
+      "inicios_antecipados": 0.1852
+    },
+    "h2": {
+      "mae": 5.5919,
+      "mae_inicio": 9.499,
+      "vies_inicio": -9.1187,
+      "inicios_antecipados": 0.2543
+    },
+    "h3": {
+      "mae": 6.8845,
+      "mae_inicio": 12.9329,
+      "vies_inicio": -12.2369,
+      "inicios_antecipados": 0.2855
+    },
+    "h4": {
+      "mae": 8.0666,
+      "mae_inicio": 17.3848,
+      "vies_inicio": -16.339,
+      "inicios_antecipados": 0.3218
+    }
+  },
+  "+ tendência do Rt": {
+    "h1": {
+      "mae": 4.1675,
+      "mae_inicio": 7.0756,
+      "vies_inicio": -6.94,
+      "inicios_antecipados": 0.1872
+    },
+    "h2": {
+      "mae": 5.6043,
+      "mae_inicio": 9.5018,
+      "vies_inicio": -9.1231,
+      "inicios_antecipados": 0.2542
+    },
+    "h3": {
+      "mae": 6.9279,
+      "mae_inicio": 12.7422,
+      "vies_inicio": -11.982,
+      "inicios_antecipados": 0.3002
+    },
+    "h4": {
+      "mae": 8.1517,
+      "mae_inicio": 17.3644,
+      "vies_inicio": -16.2961,
+      "inicios_antecipados": 0.3252
+    }
+  },
+  "+ vizinhos": {
+    "h1": {
+      "mae": 4.1772,
+      "mae_inicio": 6.9643,
+      "vies_inicio": -6.8193,
+      "inicios_antecipados": 0.2075
+    },
+    "h2": {
+      "mae": 5.5981,
+      "mae_inicio": 9.3038,
+      "vies_inicio": -8.872,
+      "inicios_antecipados": 0.2888
+    },
+    "h3": {
+      "mae": 6.8784,
+      "mae_inicio": 12.4257,
+      "vies_inicio": -11.6133,
+      "inicios_antecipados": 0.3342
+    },
+    "h4": {
+      "mae": 8.1313,
+      "mae_inicio": 16.7785,
+      "vies_inicio": -15.3754,
+      "inicios_antecipados": 0.3738
+    }
+  },
+  "+ vizinhos e Rt": {
+    "h1": {
+      "mae": 4.1672,
+      "mae_inicio": 6.9884,
+      "vies_inicio": -6.843,
+      "inicios_antecipados": 0.2076
+    },
+    "h2": {
+      "mae": 5.559,
+      "mae_inicio": 9.2229,
+      "vies_inicio": -8.7683,
+      "inicios_antecipados": 0.2994
+    },
+    "h3": {
+      "mae": 6.8671,
+      "mae_inicio": 12.466,
+      "vies_inicio": -11.6429,
+      "inicios_antecipados": 0.3309
+    },
+    "h4": {
+      "mae": 8.0608,
+      "mae_inicio": 16.6274,
+      "vies_inicio": -15.1785,
+      "inicios_antecipados": 0.3731
+    }
+  }
+}

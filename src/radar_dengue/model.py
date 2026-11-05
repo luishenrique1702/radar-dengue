@@ -22,28 +22,34 @@ from radar_dengue.validate import validate_raw
 
 REGISTRY = MODELS / "registro"
 
+# Hiperparâmetros escolhidos em radar_dengue.tuning (validação temporal 2021–2023, mesmo modelo
+# Poisson com offset, quatro horizontes): 255 e 511 folhas empatam; fica a configuração menor.
 PARAMS = dict(
-    n_estimators=600, learning_rate=0.03, num_leaves=63, min_child_samples=50,
+    n_estimators=400, learning_rate=0.03, num_leaves=255, min_child_samples=100,
     subsample=0.8, subsample_freq=1, colsample_bytree=0.8, reg_lambda=1.0,
     random_state=42, verbose=-1,
 )
 
 
-def fit_central(df: pd.DataFrame, h: int) -> lgb.LGBMRegressor:
+def fit_central(df: pd.DataFrame, h: int, params: dict | None = None,
+                features: list[str] | None = None) -> lgb.LGBMRegressor:
     """Modelo central: LightGBM com objetivo Poisson, próprio para contagens.
 
     A semana atual entra como offset (init_score): o modelo aprende a variação em relação a
     ela, e por isso acompanha epidemias maiores que qualquer uma vista no treino. Na
-    comparação do notebook 03, o objetivo Poisson errou de 2% a 5% menos que prever o log.
+    comparação do notebook 03, o objetivo Poisson errou de 0,4% a 4,8% menos que prever o log.
+    `params` substitui hiperparâmetros de PARAMS e `features` substitui a lista de atributos
+    (usados no ajuste e nos experimentos).
     """
     casos_futuros = np.expm1(df[f"y_h{h}"]).round()
-    return lgb.LGBMRegressor(**PARAMS, objective="poisson").fit(
-        df[FEATURES], casos_futuros, init_score=df["log_casos_lag0"].to_numpy())
+    return lgb.LGBMRegressor(**{**PARAMS, **(params or {})}, objective="poisson").fit(
+        df[features or FEATURES], casos_futuros, init_score=df["log_casos_lag0"].to_numpy())
 
 
 def predict_central(model, df: pd.DataFrame) -> np.ndarray:
     """Casos previstos (escala original) pelo modelo central."""
-    return np.exp(model.predict(df[FEATURES], raw_score=True) + df["log_casos_lag0"].to_numpy())
+    cols = list(model.feature_name_)
+    return np.exp(model.predict(df[cols], raw_score=True) + df["log_casos_lag0"].to_numpy())
 
 
 def consolidated(d: pd.DataFrame, h: int) -> pd.DataFrame:

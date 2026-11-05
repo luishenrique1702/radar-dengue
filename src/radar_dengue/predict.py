@@ -14,7 +14,7 @@ import pandas as pd
 
 from radar_dengue.config import DATA_PROCESSED, DATA_RAW, HORIZONS, MODELS
 from radar_dengue.features import FEATURES, build_features, risk_level
-from radar_dengue.intervals import NIVEIS, predict_bounds
+from radar_dengue.intervals import NIVEIS, adjustments_for, predict_bounds
 from radar_dengue.monitor import log_forecast
 from radar_dengue.validate import validate_raw
 
@@ -46,6 +46,9 @@ def load_models() -> dict:
         if arq.exists():
             m["quantis"] = joblib.load(arq)
             m["ajustes"] = {int(n): v["ajuste_log"] for n, v in ajustes.get(f"h{h}", {}).items()}
+            m["ajustes_porte"] = {int(n): v["ajuste_log_por_porte"]
+                                  for n, v in ajustes.get(f"h{h}", {}).items()
+                                  if "ajuste_log_por_porte" in v}
         models[h] = m
     return models
 
@@ -83,7 +86,10 @@ def forecast(raw: pd.DataFrame, models: dict | None = None) -> pd.DataFrame:
         })
         if "quantis" in m:
             for nivel in NIVEIS:
-                ajuste = m.get("ajustes", {}).get(nivel, 0.0)
+                # calibração conformal por porte do município, quando disponível
+                por_porte = m.get("ajustes_porte", {}).get(nivel)
+                ajuste = (adjustments_for(last, por_porte) if por_porte
+                          else m.get("ajustes", {}).get(nivel, 0.0))
                 lo, hi = predict_bounds(m["quantis"], last, nivel, ajuste)
                 # garante a ordem inferior <= central <= superior
                 bloco[f"casos_min_{nivel}"] = np.minimum(np.expm1(lo).clip(0), casos).round(1)

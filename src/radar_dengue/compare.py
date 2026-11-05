@@ -47,7 +47,7 @@ def main() -> None:
         y = f"y_h{h}"
         real = np.expm1(te[y]).to_numpy()
         atual = te["log_casos_lag0"].to_numpy()
-        lin = sm.OLS(tr[y] - tr["log_casos_lag0"], sm.add_constant(tr[FEATURES])).fit()
+        lin = sm.OLS(tr[y] - tr["log_casos_lag0"], sm.add_constant(tr[FEATURES].fillna(0))).fit()
         nb = sm.GLM(np.expm1(tr[y]).round(), sm.add_constant(tr[NB_FEATURES]),
                     family=sm.families.NegativeBinomial(alpha=0.3),
                     offset=tr["log_casos_lag0"].to_numpy()).fit()
@@ -55,7 +55,7 @@ def main() -> None:
         resultado[f"h{h}"] = {
             "Repetir o mesmo período do ano anterior": mae(real, np.expm1(te["log_casos_lag52"])),
             "Regressão linear": mae(
-                real, np.expm1(lin.predict(sm.add_constant(te[FEATURES])) + atual)),
+                real, np.expm1(lin.predict(sm.add_constant(te[FEATURES].fillna(0))) + atual)),
             "Repetir a semana atual (baseline)": mae(real, np.expm1(atual)),
             "Binomial negativa": mae(
                 real, nb.predict(sm.add_constant(te[NB_FEATURES]), offset=atual)),

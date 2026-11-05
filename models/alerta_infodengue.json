@@ -8,13 +8,13 @@
       "alertas": 16052
     },
     "combinado": {
-      "precisao": 0.7591986511950808,
-      "recall": 0.956875,
-      "alertas": 20166
+      "precisao": 0.7601191954308418,
+      "recall": 0.9565625,
+      "alertas": 20135
     },
     "novas_epidemias": 1488,
-    "novas_detectadas_pelo_modelo": 0.5362903225806451,
-    "precisao_alertas_novos": 0.19397180359747204
+    "novas_detectadas_pelo_modelo": 0.5329301075268817,
+    "precisao_alertas_novos": 0.19421993632133236
   },
   "h2": {
     "eventos": 15933,
@@ -25,13 +25,13 @@
       "alertas": 16052
     },
     "combinado": {
-      "precisao": 0.7077065833170542,
-      "recall": 0.9094960145609741,
-      "alertas": 20476
+      "precisao": 0.7081316317050511,
+      "recall": 0.9089311491872215,
+      "alertas": 20451
     },
     "novas_epidemias": 2652,
-    "novas_detectadas_pelo_modelo": 0.45625942684766213,
-    "precisao_alertas_novos": 0.27350813743218805
+    "novas_detectadas_pelo_modelo": 0.4528657616892911,
+    "precisao_alertas_novos": 0.27301659468060924
   },
   "h3": {
     "eventos": 15833,
@@ -42,13 +42,13 @@
       "alertas": 16052
     },
     "combinado": {
-      "precisao": 0.6039077862850927,
-      "recall": 0.9116402450577907,
-      "alertas": 23901
+      "precisao": 0.6079780498100464,
+      "recall": 0.9096823091012443,
+      "alertas": 23690
     },
     "novas_epidemias": 3422,
-    "novas_detectadas_pelo_modelo": 0.5911747516072472,
-    "precisao_alertas_novos": 0.2577398394699962
+    "novas_detectadas_pelo_modelo": 0.5821157218001168,
+    "precisao_alertas_novos": 0.2608012568735271
   },
   "h4": {
     "eventos": 15701,
@@ -59,12 +59,12 @@
       "alertas": 16052
     },
     "combinado": {
-      "precisao": 0.5740809353258408,
-      "recall": 0.8881599898095662,
-      "alertas": 24291
+      "precisao": 0.579785899473112,
+      "recall": 0.8830647729443984,
+      "alertas": 23914
     },
     "novas_epidemias": 4092,
-    "novas_detectadas_pelo_modelo": 0.570869990224829,
-    "precisao_alertas_novos": 0.28352955455759193
+    "novas_detectadas_pelo_modelo": 0.5513196480938416,
+    "precisao_alertas_novos": 0.28694988552531164
   }
 }

@@ -54,11 +54,32 @@ $$
 
 Deve ficar perto do nível nominal (50%, 80% ou 95%).
 
+### WIS (*weighted interval score*)
+
+A cobertura sozinha premia intervalos enormes. O **interval score** de um intervalo central de nível
+$1-\alpha$, com limites $l$ e $u$, pune a largura e cada valor que fica fora:
+
+$$
+IS_\alpha(l, u; y) = (u - l) + \frac{2}{\alpha}(l - y)\,\mathbb{1}\{y < l\} + \frac{2}{\alpha}(y - u)\,\mathbb{1}\{y > u\}
+$$
+
+O WIS combina a mediana $m$ e os $K$ intervalos (aqui, 50%, 80% e 95%):
+
+$$
+WIS = \frac{1}{K + 1/2}\left( \tfrac{1}{2}|y - m| + \sum_{k=1}^{K} \frac{\alpha_k}{2}\, IS_{\alpha_k} \right)
+$$
+
+É uma regra de pontuação própria, aproxima o CRPS e está na mesma unidade dos casos: com só a mediana,
+vira metade do erro absoluto. Valores menores são melhores. É a métrica dos centros de previsão do CDC
+e do desafio Infodengue-Mosqlimate.
+
 ## Por que essas métricas aqui
 
 - **MAE** é a métrica principal porque está na unidade que um gestor entende (casos).
 - **WAPE** dá a ordem de grandeza relativa (o modelo erra cerca de 17% a 37% dos casos totais).
 - **RMSE log** e o teste em escala log garantem que o resultado não depende só das cidades grandes.
+- **WIS** avalia a previsão inteira (centro e intervalos) e é usado no backtest de 2019 a 2026,
+  contra um baseline que repete a semana atual com a incerteza da variação histórica.
 - **Precisão e recall** traduzem a previsão numa decisão (alertar ou não), com o custo dos alarmes
   falsos explícito.
 
@@ -74,6 +95,7 @@ Deve ficar perto do nível nominal (50%, 80% ou 95%).
 
 - `src/radar_dengue/model.py`: função `metrics`.
 - `src/radar_dengue/compare.py`: comparação de métodos e com o alerta do InfoDengue.
+- `src/radar_dengue/backtest.py`: `interval_score` e `wis`, no backtest com origem móvel.
 
 ## Referências
 
@@ -81,3 +103,5 @@ Deve ficar perto do nível nominal (50%, 80% ou 95%).
   Journal of Forecasting*, 2006.
 - Gneiting, T. e Raftery, A. E. "Strictly proper scoring rules, prediction, and estimation",
   *Journal of the American Statistical Association*, 2007.
+- Bracher, J., Ray, E. L., Gneiting, T. e Reich, N. G. "Evaluating epidemic forecasts in an interval
+  format", *PLOS Computational Biology*, 2021.

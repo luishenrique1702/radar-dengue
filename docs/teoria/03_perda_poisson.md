@@ -63,7 +63,7 @@ quantílica calibrada (arquivo 5).
 - **Contagens com muitos zeros:** 60% das semanas das cidades pequenas têm zero casos. Prever o
   logaritmo e voltar para a escala original introduz viés (a média do log não é o log da média); a
   Poisson modela a média diretamente.
-- **Resultado:** errou de 2% a 6% menos que o mesmo LightGBM prevendo $\log(1+y)$ com perda
+- **Resultado:** errou de 0,4% a 4,8% menos que o mesmo LightGBM prevendo $\log(1+y)$ com perda
   quadrática. A Tweedie, que acomoda variância maior, deu resultado praticamente igual.
 
 ## Hipóteses e riscos neste projeto

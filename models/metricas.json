@@ -1,11 +1,11 @@
 {
   "h1": {
     "modelo": {
-      "mae_casos": 11.611089805801498,
-      "rmse_log": 0.4953357456342292,
-      "acerto_nivel": 0.7235178512938094,
-      "recall_alerta": 0.8590562471485368,
-      "precisao_alerta": 0.8673664122137404
+      "mae_casos": 11.621754190275317,
+      "rmse_log": 0.4958109063036364,
+      "acerto_nivel": 0.7232121410634349,
+      "recall_alerta": 0.8571987225444828,
+      "precisao_alerta": 0.8683194137259432
     },
     "baseline": {
       "mae_casos": 13.352920624522328,
@@ -19,11 +19,11 @@
   },
   "h2": {
     "modelo": {
-      "mae_casos": 17.024520867615347,
-      "rmse_log": 0.5636092698474776,
-      "acerto_nivel": 0.693419099455715,
-      "recall_alerta": 0.8363171355498721,
-      "precisao_alerta": 0.8457737838644428
+      "mae_casos": 16.806065614013054,
+      "rmse_log": 0.5625762976768591,
+      "acerto_nivel": 0.6937379735004673,
+      "recall_alerta": 0.8348088399239294,
+      "precisao_alerta": 0.8472827714732604
     },
     "baseline": {
       "mae_casos": 21.445983836384627,
@@ -37,11 +37,11 @@
   },
   "h3": {
     "modelo": {
-      "mae_casos": 20.9670502643553,
-      "rmse_log": 0.6158672223483723,
-      "acerto_nivel": 0.6723366555924696,
-      "recall_alerta": 0.8234380165289256,
-      "precisao_alerta": 0.8267998805058585
+      "mae_casos": 21.443059205921713,
+      "rmse_log": 0.6160546970688257,
+      "acerto_nivel": 0.6724806201550387,
+      "recall_alerta": 0.8181157024793388,
+      "precisao_alerta": 0.8307764611098056
     },
     "baseline": {
       "mae_casos": 29.17345514950166,
@@ -55,11 +55,11 @@
   },
   "h4": {
     "modelo": {
-      "mae_casos": 25.77766826975009,
-      "rmse_log": 0.6680127692974396,
-      "acerto_nivel": 0.650192404216162,
-      "recall_alerta": 0.8052482032425204,
-      "precisao_alerta": 0.8067854511353741
+      "mae_casos": 25.981757665291184,
+      "rmse_log": 0.6686138828495338,
+      "acerto_nivel": 0.6506943282583236,
+      "recall_alerta": 0.7989637305699482,
+      "precisao_alerta": 0.8123236923495225
     },
     "baseline": {
       "mae_casos": 36.6416262338966,
