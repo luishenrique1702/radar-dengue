@@ -13,3 +13,6 @@ reports/relatorio.html
 data/raw/
 models/*.joblib
 data/radar.duckdb
+
+# previsões linha a linha do backtest (~1 milhão de linhas): recriadas por `python -m radar_dengue.ajustes`
+data/processed/backtest_previsoes.parquet

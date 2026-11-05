@@ -83,8 +83,8 @@ A pasta [`docs/teoria`](docs/teoria) explica cada método usado (gradient boosti
 Requer Python 3.11+.
 
 ```bash
-git clone https://github.com/luishenrique1702/Radar-Dengue.git
-cd Radar-Dengue
+git clone https://github.com/luishenrique1702/radar-dengue.git
+cd radar-dengue
 python -m venv .venv && source .venv/bin/activate   # Windows: .venv\Scripts\activate
 make install    # dependências
 make pipeline   # coleta, treina, prevê, monitora e cria o banco SQL (~15 min)
