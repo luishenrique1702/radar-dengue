@@ -1,0 +1,519 @@
+{
+  "pontual": {
+    "epoca_sem_dengue": {
+      "escolhido": {
+        "limiar": 0.5,
+        "peso": 0.0,
+        "razao": 0.8158439626655867
+      },
+      "razao_ajuste_atual": 0.8250676219789479,
+      "grade": [
+        {
+          "limiar": 0.5,
+          "peso": 0.0,
+          "razao": 0.8158439626655867
+        },
+        {
+          "limiar": 0.5,
+          "peso": 0.25,
+          "razao": 0.8175478299573425
+        },
+        {
+          "limiar": 0.5,
+          "peso": 0.5,
+          "razao": 0.8193202444133889
+        },
+        {
+          "limiar": 0.5,
+          "peso": 0.75,
+          "razao": 0.8215562376925248
+        },
+        {
+          "limiar": 1.0,
+          "peso": 0.0,
+          "razao": 0.8160571105601622
+        },
+        {
+          "limiar": 1.0,
+          "peso": 0.25,
+          "razao": 0.8176209014026774
+        },
+        {
+          "limiar": 1.0,
+          "peso": 0.5,
+          "razao": 0.8192796697151472
+        },
+        {
+          "limiar": 1.0,
+          "peso": 0.75,
+          "razao": 0.8214731820304921
+        },
+        {
+          "limiar": 2.0,
+          "peso": 0.0,
+          "razao": 0.817011623252803
+        },
+        {
+          "limiar": 2.0,
+          "peso": 0.25,
+          "razao": 0.8181023761511056
+        },
+        {
+          "limiar": 2.0,
+          "peso": 0.5,
+          "razao": 0.8193679998912922
+        },
+        {
+          "limiar": 2.0,
+          "peso": 0.75,
+          "razao": 0.8213689824648445
+        },
+        {
+          "limiar": 5.0,
+          "peso": 0.0,
+          "razao": 0.8216848229874106
+        },
+        {
+          "limiar": 5.0,
+          "peso": 0.25,
+          "razao": 0.8206561329843056
+        },
+        {
+          "limiar": 5.0,
+          "peso": 0.5,
+          "razao": 0.8201985639052871
+        },
+        {
+          "limiar": 5.0,
+          "peso": 0.75,
+          "razao": 0.8212628527277186
+        },
+        {
+          "limiar": 10.0,
+          "peso": 0.0,
+          "razao": 0.8290370319430701
+        },
+        {
+          "limiar": 10.0,
+          "peso": 0.25,
+          "razao": 0.8245485804521451
+        },
+        {
+          "limiar": 10.0,
+          "peso": 0.5,
+          "razao": 0.8214436451986
+        },
+        {
+          "limiar": 10.0,
+          "peso": 0.75,
+          "razao": 0.8211181645475705
+        }
+      ]
+    },
+    "ensemble": {
+      "peso_lgbm": 1.0,
+      "razao_ajuste": {
+        "1.0": 0.8250676219789479,
+        "0.9": 0.8287885769350032,
+        "0.8": 0.838363261094712,
+        "0.7": 0.8542820022111393,
+        "0.6": 0.8760599529806898,
+        "0.5": 0.9031748063912144
+      }
+    },
+    "avaliacao_por_ano": {
+      "2023": {
+        "LightGBM (atual)": 0.8066,
+        "época sem dengue": 0.8038,
+        "ensemble com NB": 0.8066,
+        "os dois": 0.8038
+      },
+      "2024": {
+        "LightGBM (atual)": 0.78,
+        "época sem dengue": 0.7798,
+        "ensemble com NB": 0.78,
+        "os dois": 0.7798
+      },
+      "2025": {
+        "LightGBM (atual)": 0.7033,
+        "época sem dengue": 0.7023,
+        "ensemble com NB": 0.7033,
+        "os dois": 0.7023
+      },
+      "2026": {
+        "LightGBM (atual)": 0.937,
+        "época sem dengue": 0.9266,
+        "ensemble com NB": 0.937,
+        "os dois": 0.9266
+      }
+    },
+    "avaliacao_por_horizonte": {
+      "1": {
+        "LightGBM (atual)": 0.89,
+        "época sem dengue": 0.8859,
+        "ensemble com NB": 0.89,
+        "os dois": 0.8859
+      },
+      "2": {
+        "LightGBM (atual)": 0.8162,
+        "época sem dengue": 0.8127,
+        "ensemble com NB": 0.8162,
+        "os dois": 0.8127
+      },
+      "3": {
+        "LightGBM (atual)": 0.7801,
+        "época sem dengue": 0.7767,
+        "ensemble com NB": 0.7801,
+        "os dois": 0.7767
+      },
+      "4": {
+        "LightGBM (atual)": 0.7406,
+        "época sem dengue": 0.7371,
+        "ensemble com NB": 0.7406,
+        "os dois": 0.7371
+      }
+    },
+    "avaliacao_media": {
+      "LightGBM (atual)": 0.8067,
+      "época sem dengue": 0.8031,
+      "ensemble com NB": 0.8067,
+      "os dois": 0.8031
+    },
+    "recortes": {
+      "junho a outubro": {
+        "LightGBM (atual)": 0.39447317112048536,
+        "época sem dengue": 0.39210412933679106,
+        "ensemble com NB": 0.39447317112048536,
+        "os dois": 0.39210412933679106
+      },
+      "incidência ≥ 50/100 mil": {
+        "LightGBM (atual)": 0.7272839506648794,
+        "época sem dengue": 0.7272839506648793,
+        "ensemble com NB": 0.7272839506648793,
+        "os dois": 0.7272839506648793
+      }
+    }
+  },
+  "intervalos": {
+    "gama_escolhido": 0.02,
+    "por_ano": [
+      {
+        "gama": 0.0,
+        "ano": 2019,
+        "wis": 5.0396,
+        "cobertura_80": 0.7515,
+        "cobertura_95": 0.8919
+      },
+      {
+        "gama": 0.0,
+        "ano": 2020,
+        "wis": 2.4286,
+        "cobertura_80": 0.8368,
+        "cobertura_95": 0.9694
+      },
+      {
+        "gama": 0.0,
+        "ano": 2021,
+        "wis": 1.9996,
+        "cobertura_80": 0.8545,
+        "cobertura_95": 0.9649
+      },
+      {
+        "gama": 0.0,
+        "ano": 2022,
+        "wis": 4.1399,
+        "cobertura_80": 0.7926,
+        "cobertura_95": 0.9236
+      },
+      {
+        "gama": 0.0,
+        "ano": 2023,
+        "wis": 4.3611,
+        "cobertura_80": 0.8194,
+        "cobertura_95": 0.9591
+      },
+      {
+        "gama": 0.0,
+        "ano": 2024,
+        "wis": 19.0695,
+        "cobertura_80": 0.7522,
+        "cobertura_95": 0.9276
+      },
+      {
+        "gama": 0.0,
+        "ano": 2025,
+        "wis": 8.2412,
+        "cobertura_80": 0.8499,
+        "cobertura_95": 0.9692
+      },
+      {
+        "gama": 0.0,
+        "ano": 2026,
+        "wis": 2.2386,
+        "cobertura_80": 0.8495,
+        "cobertura_95": 0.9677
+      },
+      {
+        "gama": 0.02,
+        "ano": 2019,
+        "wis": 5.0192,
+        "cobertura_80": 0.7786,
+        "cobertura_95": 0.904
+      },
+      {
+        "gama": 0.02,
+        "ano": 2020,
+        "wis": 2.4274,
+        "cobertura_80": 0.7984,
+        "cobertura_95": 0.9694
+      },
+      {
+        "gama": 0.02,
+        "ano": 2021,
+        "wis": 2.0013,
+        "cobertura_80": 0.7686,
+        "cobertura_95": 0.9598
+      },
+      {
+        "gama": 0.02,
+        "ano": 2022,
+        "wis": 4.1386,
+        "cobertura_80": 0.7832,
+        "cobertura_95": 0.9275
+      },
+      {
+        "gama": 0.02,
+        "ano": 2023,
+        "wis": 4.3619,
+        "cobertura_80": 0.7594,
+        "cobertura_95": 0.9589
+      },
+      {
+        "gama": 0.02,
+        "ano": 2024,
+        "wis": 18.9877,
+        "cobertura_80": 0.7743,
+        "cobertura_95": 0.9305
+      },
+      {
+        "gama": 0.02,
+        "ano": 2025,
+        "wis": 8.2324,
+        "cobertura_80": 0.8242,
+        "cobertura_95": 0.9687
+      },
+      {
+        "gama": 0.02,
+        "ano": 2026,
+        "wis": 2.2373,
+        "cobertura_80": 0.7849,
+        "cobertura_95": 0.9337
+      },
+      {
+        "gama": 0.05,
+        "ano": 2019,
+        "wis": 5.0008,
+        "cobertura_80": 0.7782,
+        "cobertura_95": 0.9121
+      },
+      {
+        "gama": 0.05,
+        "ano": 2020,
+        "wis": 2.4267,
+        "cobertura_80": 0.7792,
+        "cobertura_95": 0.9693
+      },
+      {
+        "gama": 0.05,
+        "ano": 2021,
+        "wis": 2.0067,
+        "cobertura_80": 0.7562,
+        "cobertura_95": 0.9473
+      },
+      {
+        "gama": 0.05,
+        "ano": 2022,
+        "wis": 4.1447,
+        "cobertura_80": 0.7806,
+        "cobertura_95": 0.9288
+      },
+      {
+        "gama": 0.05,
+        "ano": 2023,
+        "wis": 4.366,
+        "cobertura_80": 0.7635,
+        "cobertura_95": 0.9584
+      },
+      {
+        "gama": 0.05,
+        "ano": 2024,
+        "wis": 18.9023,
+        "cobertura_80": 0.7874,
+        "cobertura_95": 0.9339
+      },
+      {
+        "gama": 0.05,
+        "ano": 2025,
+        "wis": 8.2277,
+        "cobertura_80": 0.8077,
+        "cobertura_95": 0.9679
+      },
+      {
+        "gama": 0.05,
+        "ano": 2026,
+        "wis": 2.2392,
+        "cobertura_80": 0.7791,
+        "cobertura_95": 0.9182
+      },
+      {
+        "gama": 0.1,
+        "ano": 2019,
+        "wis": 4.9873,
+        "cobertura_80": 0.7822,
+        "cobertura_95": 0.9209
+      },
+      {
+        "gama": 0.1,
+        "ano": 2020,
+        "wis": 2.4276,
+        "cobertura_80": 0.7734,
+        "cobertura_95": 0.9691
+      },
+      {
+        "gama": 0.1,
+        "ano": 2021,
+        "wis": 2.023,
+        "cobertura_80": 0.7556,
+        "cobertura_95": 0.9367
+      },
+      {
+        "gama": 0.1,
+        "ano": 2022,
+        "wis": 4.1717,
+        "cobertura_80": 0.761,
+        "cobertura_95": 0.9325
+      },
+      {
+        "gama": 0.1,
+        "ano": 2023,
+        "wis": 4.3815,
+        "cobertura_80": 0.7679,
+        "cobertura_95": 0.9511
+      },
+      {
+        "gama": 0.1,
+        "ano": 2024,
+        "wis": 18.8129,
+        "cobertura_80": 0.7876,
+        "cobertura_95": 0.9379
+      },
+      {
+        "gama": 0.1,
+        "ano": 2025,
+        "wis": 8.2277,
+        "cobertura_80": 0.79,
+        "cobertura_95": 0.9666
+      },
+      {
+        "gama": 0.1,
+        "ano": 2026,
+        "wis": 2.2501,
+        "cobertura_80": 0.7834,
+        "cobertura_95": 0.9167
+      },
+      {
+        "gama": 0.2,
+        "ano": 2019,
+        "wis": 4.9963,
+        "cobertura_80": 0.7606,
+        "cobertura_95": 0.9309
+      },
+      {
+        "gama": 0.2,
+        "ano": 2020,
+        "wis": 2.4373,
+        "cobertura_80": 0.7706,
+        "cobertura_95": 0.9614
+      },
+      {
+        "gama": 0.2,
+        "ano": 2021,
+        "wis": 2.0635,
+        "cobertura_80": 0.758,
+        "cobertura_95": 0.9139
+      },
+      {
+        "gama": 0.2,
+        "ano": 2022,
+        "wis": 4.2641,
+        "cobertura_80": 0.7543,
+        "cobertura_95": 0.9373
+      },
+      {
+        "gama": 0.2,
+        "ano": 2023,
+        "wis": 4.442,
+        "cobertura_80": 0.7737,
+        "cobertura_95": 0.9379
+      },
+      {
+        "gama": 0.2,
+        "ano": 2024,
+        "wis": 18.7702,
+        "cobertura_80": 0.7686,
+        "cobertura_95": 0.9432
+      },
+      {
+        "gama": 0.2,
+        "ano": 2025,
+        "wis": 8.282,
+        "cobertura_80": 0.7986,
+        "cobertura_95": 0.9584
+      },
+      {
+        "gama": 0.2,
+        "ano": 2026,
+        "wis": 2.2989,
+        "cobertura_80": 0.7859,
+        "cobertura_95": 0.9209
+      }
+    ],
+    "avaliacao": [
+      {
+        "gama": 0.0,
+        "wis": 8.4776,
+        "cobertura_50": 0.5719,
+        "cobertura_80": 0.8177,
+        "cobertura_95": 0.9559
+      },
+      {
+        "gama": 0.02,
+        "wis": 8.4548,
+        "cobertura_50": 0.5152,
+        "cobertura_80": 0.7857,
+        "cobertura_95": 0.9479
+      },
+      {
+        "gama": 0.05,
+        "wis": 8.4338,
+        "cobertura_50": 0.5142,
+        "cobertura_80": 0.7844,
+        "cobertura_95": 0.9446
+      },
+      {
+        "gama": 0.1,
+        "wis": 8.418,
+        "cobertura_50": 0.5121,
+        "cobertura_80": 0.7822,
+        "cobertura_95": 0.9431
+      },
+      {
+        "gama": 0.2,
+        "wis": 8.4482,
+        "cobertura_50": 0.514,
+        "cobertura_80": 0.7817,
+        "cobertura_95": 0.9401
+      }
+    ]
+  }
+}

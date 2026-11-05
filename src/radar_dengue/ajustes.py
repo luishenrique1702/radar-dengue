@@ -165,12 +165,13 @@ def interval_bounds(p: pd.DataFrame, nivel: int, extra) -> tuple[np.ndarray, np.
     return np.expm1(lo).clip(0), np.expm1(hi).clip(0)
 
 
-def adaptive_extra(g: pd.DataFrame, nivel: int, gama: float) -> np.ndarray:
+def adaptive_extra(g: pd.DataFrame, nivel: int, gama: float, estreita: bool = True) -> np.ndarray:
     """Conformal adaptativo (ACI) sobre o alargamento, em log, atualizado toda semana.
 
     Na semana t, o alargamento extra é e_t = e_{t-1} + gama × (taxa de erro observada − alfa). A
     taxa observada é a fração de municípios fora do intervalo nas previsões cujo alvo já está
     consolidado: com atraso de notificação, a previsão feita em s só é conferida em s + h + 4.
+    Com `estreita`, o ajuste também pode ser negativo e estreitar intervalos largos demais.
     """
     alfa = 1 - nivel / 100
     h = int(g["horizonte"].iloc[0])
@@ -190,12 +191,12 @@ def adaptive_extra(g: pd.DataFrame, nivel: int, gama: float) -> np.ndarray:
             m = g["semana_base"].to_numpy() == conferida
             lo, hi = interval_bounds(g[m], nivel, extra_semana.get(conferida, 0.0))
             taxa = float(np.mean((g["real"].to_numpy()[m] < lo) | (g["real"].to_numpy()[m] > hi)))
-            e = max(0.0, e + gama * (taxa - alfa))
+            e = e + gama * (taxa - alfa) if estreita else max(0.0, e + gama * (taxa - alfa))
     return g["semana_base"].map(extra_semana).to_numpy(dtype=float)
 
 
 def interval_experiments(p: pd.DataFrame) -> dict:
-    gamas = [0.0, 0.05, 0.1, 0.2, 0.4]
+    gamas = [0.0, 0.02, 0.05, 0.1, 0.2]
     linhas = []
     for (ano, h), g in p.groupby(["ano", "horizonte"]):
         y = g["real"].to_numpy()
@@ -212,9 +213,12 @@ def interval_experiments(p: pd.DataFrame) -> dict:
                            **{f"cobertura_{n}": v for n, v in cob.items()}})
         print(f"intervalos {ano} h={h}", flush=True)
     r = pd.DataFrame(linhas)
-    escolha = (r[r["ano"].isin(ANOS_AJUSTE)].groupby("gama")
-               .apply(lambda x: abs(x["cobertura_80"].mean() - 0.8) + abs(x["cobertura_95"].mean() - 0.95)
-                      + x["wis"].mean() / 1000))
+    # escolhe pelo desvio de cada temporada em relação ao nível nominal (e não pela média), para
+    # premiar intervalos certos tanto nos anos de epidemia quanto nos anos tranquilos
+    anual = (r[r["ano"].isin(ANOS_AJUSTE)].groupby(["gama", "ano"])
+             [["cobertura_80", "cobertura_95"]].mean())
+    desvio = (anual["cobertura_80"] - 0.8).abs() + (anual["cobertura_95"] - 0.95).abs()
+    escolha = desvio.groupby("gama").mean()
     return {"gama_escolhido": float(escolha.idxmin()),
             "por_ano": r.groupby(["gama", "ano"])[["wis", "cobertura_80", "cobertura_95"]]
             .mean().round(4).reset_index().to_dict("records"),
@@ -229,14 +233,16 @@ def main() -> None:
         d = nb_features(add_targets(build_features(raw), HORIZONS))
         generate(d).to_parquet(ARQ, index=False)
     p = pd.read_parquet(ARQ)
-    saida = {"pontual": point_experiments(p)}
-    print(json.dumps(saida["pontual"]["avaliacao_por_ano"], indent=1, ensure_ascii=False))
-    print("média 2023–2026:", saida["pontual"]["avaliacao_media"])
-    print("recortes:", json.dumps(saida["pontual"]["recortes"], indent=1, ensure_ascii=False))
+    saida = {"pontual": point_experiments(p)} if "--so-intervalos" not in sys.argv else {}
+    if saida:
+        print(json.dumps(saida["pontual"]["avaliacao_por_ano"], indent=1, ensure_ascii=False))
+        print("média 2023–2026:", saida["pontual"]["avaliacao_media"])
     saida["intervalos"] = interval_experiments(p)
     print(json.dumps(saida["intervalos"]["avaliacao"], indent=1))
-    with open(MODELS / "ajustes.json", "w", encoding="utf-8") as f:
-        json.dump(saida, f, indent=2, ensure_ascii=False, default=float)
+    arq = MODELS / "ajustes.json"
+    anterior = json.loads(arq.read_text(encoding="utf-8")) if arq.exists() else {}
+    with open(arq, "w", encoding="utf-8") as f:
+        json.dump({**anterior, **saida}, f, indent=2, ensure_ascii=False, default=float)
 
 
 if __name__ == "__main__":
